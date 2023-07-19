@@ -11,5 +11,13 @@
     "url": "TRAVIS-BACK"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "prettier": "3.0.0"
+  }
 }
