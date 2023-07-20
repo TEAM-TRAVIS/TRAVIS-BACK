@@ -3,10 +3,14 @@
 /**
  * Module dependencies.
  */
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const express = require('express');
 
+dotenv.config({ path: './config.env' });
 var app = require('../app');
 var debug = require('debug')('travis:server');
-var http = require('http');
+var http = require('http')
 
 /**
  * Get port from environment and store in Express.
@@ -14,6 +18,12 @@ var http = require('http');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
+
+const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+
+mongoose.connect(DB).then(() => {
+  console.log('DB connection successful!');
+});
 
 /**
  * Create HTTP server.
