@@ -1,18 +1,33 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const GPSModel = require('./GPSModel'); // Import the GPS Model
 
 const userSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: [true, 'A tour must have a id'],
-    unique: true,
-  },
-  name: {
-    type: String,
-    required: [true, 'A tour must have a name'],
-    default: 4.5,
-  },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  records: [
+    {
+      record_id: { type: Number, required: true },
+      date: { type: Date, required: true },
+      text: { type: String, required: true },
+      duration: { type: Number, required: true },
+      distance: { type: Number, required: true },
+      GPS: [{ type: mongoose.Schema.Types.ObjectId, ref: 'GPS' }], // Reference to GPSModel
+    },
+  ],
 });
 
-const User = mongoose.model('User', userSchema);
+userSchema.pre('save', async function (next) {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
-module.exports = User;
+const UserModel = mongoose.model('User', userSchema);
+
+module.exports = UserModel;
