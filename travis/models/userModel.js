@@ -3,8 +3,9 @@ const bcrypt = require('bcrypt');
 const GPSModel = require('./GPSModel'); // Import the GPS Model
 
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  name: { type: String, required: [true, 'Name is required'] },
+  email: { type: String, required: [true, 'Email is required'], unique: true },
+  password: { type: String, required: [true, 'Password is required'] },
   records: [
     {
       record_id: { type: Number, required: true },
@@ -12,16 +13,16 @@ const userSchema = new mongoose.Schema({
       text: { type: String, required: true },
       duration: { type: Number, required: true },
       distance: { type: Number, required: true },
-      GPS: [{ type: mongoose.Schema.Types.ObjectId, ref: 'GPS' }], // Reference to GPSModel
+      GPS: [{ type: mongoose.Schema.Types.ObjectId, ref: 'GPSModel' }], // Reference to GPSModel
     },
   ],
 });
 
+// 비밀번호 암호화
 userSchema.pre('save', async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(this.password, salt);
-    this.password = hashedPassword;
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
     next(error);

@@ -7,10 +7,13 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const express = require('express');
 
-dotenv.config({ path: './config.env' });
-var app = require('../app');
+dotenv.config({ path: './.env' });
+var app = require('./app');
 var debug = require('debug')('travis:server');
 var http = require('http')
+
+// userModel.js 불러옴
+const userModel = require('./models/userModel');
 
 /**
  * Get port from environment and store in Express.
