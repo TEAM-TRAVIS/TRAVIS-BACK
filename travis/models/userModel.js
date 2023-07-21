@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: [true, 'Password is required'] },
   records: [
     {
-      record_id: { type: Number, required: true },
+      record_id: { type: Number, required: true, unique: true },
       date: { type: Date, required: true },
       text: { type: String, required: true },
       duration: { type: Number, required: true },
