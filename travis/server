@@ -8,19 +8,30 @@ dotenv.config({ path: './.env' });
 const app = require("./app");
 const debug = require("debug")("travis:server");
 const http = require("http");
+const dbUrl = 'mongodb://mongo:27017/mydatabase'; // 'mongo' is the name of the MongoDB container in Docker Compose
 
 // userModel.js 불러옴
 const userModel = require('./models/userModel');
+
+
 
 // .env 에서 PORT 환경 변수 가져오고, 없으면 디폴트로 3000번
 const port = normalizePort(process.env.PORT || "3000");
 app.set('port', port);
 
-const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+      console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+      console.error('Error connecting to MongoDB:', err.message);
+    });
+
+/*const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
 mongoose.connect(DB).then(() => {
   console.log('DB connection successful!');
-});
+});*/
 
 // HTTP server 만듬
 var server = http.createServer(app);
