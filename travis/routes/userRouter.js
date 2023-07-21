@@ -3,7 +3,10 @@ const userController = require('../controllers/userController');
 
 const router = express.Router();
 
-router.use('/signup', userController.signup);
-// router.use('/login', userController.login);
+// GET 요청이 들어오면 getSignup 함수 실행
+router.get('/signup', userController.getSignup);
+
+// POST 요청이 들어오면 signup 함수 실행
+router.post('/signup', userController.signup);
 
 module.exports = router;
