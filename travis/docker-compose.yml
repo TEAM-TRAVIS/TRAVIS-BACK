@@ -1,0 +1,17 @@
+version: '3'
+services:
+  express-app:
+    image: zmdk966/travis:latest
+    build:
+      context: .  # Express.js 애플리케이션의 경로를 지정
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: zmdk966/mongo:latest
+    build:
+      context: ./public/docker/  # MongoDB 애플리케이션의 경로를 지정
+    ports:
+      - "27017:27017"

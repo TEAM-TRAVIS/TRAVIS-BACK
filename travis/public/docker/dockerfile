@@ -1,0 +1,5 @@
+# Use the official MongoDB image as the base image
+FROM mongo
+
+# Expose the default MongoDB port (27017)
+EXPOSE 27017
