@@ -24,7 +24,7 @@ exports.signup = async (req, res) => {
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'email', // 사용자가 이메일로 로그인하는 경우, 'email' 필드를 사용
+      usernameField: 'email',
     },
     async (email, password, done) => {
       try {
