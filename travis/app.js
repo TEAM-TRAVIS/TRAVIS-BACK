@@ -4,6 +4,16 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+// bodyParser
+const bodyParser = require('body-parser');
+const expressSession = require('express-session')({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false,
+});
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/userRouter');
 
@@ -19,6 +29,15 @@ app.use(express.urlencoded({ extended: false })); // body-parser
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// bodyParser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSession);
+
+// Passport 설정
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 
@@ -26,7 +45,7 @@ app.use('/user', userRouter);
 app.use((req, res, next) => {
   next(createError(404));
 });
-console.log('app.js v');
+
 // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development

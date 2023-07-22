@@ -1,12 +1,24 @@
 const express = require('express');
+const passport = require('passport');
 const userController = require('../controllers/userController');
 
 const router = express.Router();
 
-// GET 요청이 들어오면 getSignup 함수 실행
-router.get('/signup', userController.getSignup);
-
-// POST 요청이 들어오면 signup 함수 실행
+router.get('/signup', (req, res) => {
+  res.render('signup');
+});
 router.post('/signup', userController.signup);
+
+router.get('/login', (req, res) => {
+  res.render('login');
+});
+
+router.post(
+  '/login',
+  passport.authenticate('local', {
+    successRedirect: '/dashboard',
+    failureRedirect: 'user/login',
+  }),
+);
 
 module.exports = router;

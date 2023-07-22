@@ -8,7 +8,7 @@ dotenv.config({ path: './.env' });
 const app = require("./app");
 const debug = require("debug")("travis:server");
 const http = require("http");
-const dbUrl = 'mongodb://mongo:27017/mydatabase'; // 'mongo' is the name of the MongoDB container in Docker Compose
+const dbUrl = 'mongodb://mongo:27017/mydatabase';
 
 // userModel.js 불러옴
 const userModel = require('./models/userModel');
@@ -27,11 +27,11 @@ mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
       console.error('Error connecting to MongoDB:', err.message);
     });
 
-/*const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
-
-mongoose.connect(DB).then(() => {
-  console.log('DB connection successful!');
-});*/
+// const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+//
+// mongoose.connect(DB).then(() => {
+//   console.log('DB connection successful!');
+// });
 
 // HTTP server 만듬
 var server = http.createServer(app);
