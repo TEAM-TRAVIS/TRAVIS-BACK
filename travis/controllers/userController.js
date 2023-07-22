@@ -48,11 +48,12 @@ passport.use(
   ),
 );
 
-// 세션 관리를 위한 serialize, deserialize 설정
+// 로그인 성공 -> 사용자 정보 session 에 저장
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
+// 로그아웃 -> 사용자 정보 session 에서 삭제
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await UserModel.findById(id);
