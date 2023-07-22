@@ -19,19 +19,20 @@ const userModel = require('./models/userModel');
 const port = normalizePort(process.env.PORT || "3000");
 app.set('port', port);
 
-mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
+const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+
+mongoose.connect(DB).then(() => {
+  console.log('DB connection successful!');
+});
+
+/*mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
       console.log('Connected to MongoDB');
     })
     .catch((err) => {
       console.error('Error connecting to MongoDB:', err.message);
-    });
+    });*/
 
-// const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
-//
-// mongoose.connect(DB).then(() => {
-//   console.log('DB connection successful!');
-// });
 
 // HTTP server 만듬
 var server = http.createServer(app);
