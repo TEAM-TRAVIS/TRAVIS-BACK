@@ -8,11 +8,11 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: [true, 'Password is required'] },
   records: [
     {
-      record_id: { type: Number, required: true, unique: true },
-      date: { type: Date, required: true },
-      text: { type: String, required: true },
-      duration: { type: Number, required: true },
-      distance: { type: Number, required: true },
+      record_id: { type: Number, required: false, unique: true, sparse: true },
+      date: { type: Date, required: false },
+      text: { type: String, required: false },
+      duration: { type: Number, required: false },
+      distance: { type: Number, required: false },
       GPS: [{ type: mongoose.Schema.Types.ObjectId, ref: 'GPSModel' }], // Reference to GPSModel
     },
   ],
