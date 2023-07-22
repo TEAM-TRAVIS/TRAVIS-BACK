@@ -23,15 +23,6 @@ router.post(
 );
 
 // Logout
-router.get('/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error('Error logging out:', err);
-      return res.status(500).send('Error logging out');
-    }
-    res.render('/main');
-  });
-  res.redirect('/'); // 로그아웃 성공 시 홈으로
-});
+router.get('/logout', userController.logout);
 
 module.exports = router;

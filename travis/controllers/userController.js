@@ -53,12 +53,22 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// 로그아웃 -> 사용자 정보 session 에서 삭제
+// 사용자 정보 session 에서 삭제
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await UserModel.findById(id);
-    done(null, user);
+    done(null, user || false);
   } catch (error) {
     done(error);
   }
 });
+
+exports.logout = (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Error logging out:', err);
+      return res.status(500).send('Error logging out');
+    }
+    res.redirect('/'); // 로그아웃 성공 시 홈으로 리다이렉트합니다.
+  });
+};
