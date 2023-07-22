@@ -17,8 +17,8 @@ router.get('/login', (req, res) => {
 router.post(
   '/login',
   passport.authenticate('local', {
-    successRedirect: '/main',
-    failureRedirect: 'user/login',
+    successRedirect: '/main', // 로그인 성공 시 메인 페이지로
+    failureRedirect: '/user/login', // 로그인 실패 시 로그인 페이지로
   }),
 );
 
@@ -29,9 +29,9 @@ router.get('/logout', (req, res) => {
       console.error('Error logging out:', err);
       return res.status(500).send('Error logging out');
     }
-    res.render('login');
+    res.render('/main');
   });
-  res.redirect('/');
+  res.redirect('/'); // 로그아웃 성공 시 홈으로
 });
 
 module.exports = router;
