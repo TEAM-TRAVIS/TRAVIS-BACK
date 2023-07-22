@@ -12,7 +12,7 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    const user = await UserModel.create({ name, email, password });
+    const user = await UserModel.create({ name, email, password, joinDate: Date.now() });
 
     res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {

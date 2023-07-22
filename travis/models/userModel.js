@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: [true, 'Name is required'] },
   email: { type: String, required: [true, 'Email is required'], unique: true },
   password: { type: String, required: [true, 'Password is required'] },
+  joinDate: { type: Date, required: true },
   records: [
     {
       record_id: { type: Number, required: false, unique: true, sparse: true },
