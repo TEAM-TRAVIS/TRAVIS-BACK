@@ -8,7 +8,7 @@ dotenv.config({ path: './.env' });
 const app = require("./app");
 const debug = require("debug")("travis:server");
 const http = require("http");
-const dbUrl = 'mongodb://mongo:27017/mydatabase'; // 'mongo' is the name of the MongoDB container in Docker Compose
+const dbUrl = 'mongodb://mongo:27017/mydatabase';
 
 // userModel.js 불러옴
 const userModel = require('./models/userModel');

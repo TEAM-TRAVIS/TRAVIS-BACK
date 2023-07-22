@@ -1,8 +1,6 @@
 const UserModel = require('../models/userModel');
-
-exports.getSignup = (req, res) => {
-  res.render('signup'); // GET 요청 들어오면 signup 함수 실행하도록 설정
-};
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 
 exports.signup = async (req, res) => {
   try {
@@ -14,11 +12,63 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    const user = await UserModel.create({ name, email, password });
+    const user = await UserModel.create({ name, email, password, joinDate: Date.now() });
 
     res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Internal server error' });
   }
+};
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+    },
+    async (email, password, done) => {
+      try {
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        const isPasswordMatch = await user.comparePassword(password);
+
+        if (!isPasswordMatch) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    },
+  ),
+);
+
+// 로그인 성공 -> 사용자 정보 session 에 저장
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+// 사용자 정보 session 에서 삭제
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await UserModel.findById(id);
+    done(null, user || false);
+  } catch (error) {
+    done(error);
+  }
+});
+
+exports.logout = (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error('Error logging out:', err);
+      return res.status(500).send('Error logging out');
+    }
+    res.redirect('/'); // 로그아웃 성공 시 홈으로 리다이렉트합니다.
+  });
 };
