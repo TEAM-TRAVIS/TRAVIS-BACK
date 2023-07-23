@@ -3,6 +3,7 @@ const express = require('express');
 const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
 
 // 회원가입: bodyParser
 const bodyParser = require('body-parser');
@@ -10,6 +11,7 @@ const bodyParser = require('body-parser');
 // 로그인: session, passport
 const session = require('express-session');
 const passport = require('passport');
+const swaggerFile = require('./public/common/swagger-output.json');
 
 // Router 미들웨어 추가
 const indexRouter = require('./routes/index');
@@ -27,6 +29,7 @@ app.use(express.json()); // body-parser
 app.use(express.urlencoded({ extended: false })); // body-parser
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile, { explorer: true }));
 
 // 회원가입: bodyParser
 app.use(bodyParser.json());
