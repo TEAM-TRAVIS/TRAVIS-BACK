@@ -1,13 +1,16 @@
-const UserModel = require('../models/userModel');
+const express = require('express');
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const { status, json } = require('express/lib/response');
+const UserModel = require('../models/userModel');
 
+// 회원가입
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     // 이미 사용 중인 이메일인지 확인
     const existingUser = await UserModel.findOne({ email });
-
+    console.log('회원가입 성공 테스트');
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
     }
@@ -21,48 +24,19 @@ exports.signup = async (req, res) => {
   }
 };
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-    },
-    async (email, password, done) => {
-      try {
-        const user = await UserModel.findOne({ email });
+// 로그인
+exports.login = (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({ error: 'Login failed' });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        if (!user) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
+    return res.json({ user: user, token });
+  })(req, res, next);
+};
 
-        const isPasswordMatch = await user.comparePassword(password);
-
-        if (!isPasswordMatch) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
-
-        return done(null, user);
-      } catch (error) {
-        return done(error);
-      }
-    },
-  ),
-);
-
-// 로그인 성공 -> 사용자 정보 session 에 저장
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-// 사용자 정보 session 에서 삭제
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await UserModel.findById(id);
-    done(null, user || false);
-  } catch (error) {
-    done(error);
-  }
-});
-
+// 로그아웃
 exports.logout = (req, res) => {
   req.logout((err) => {
     if (err) {
