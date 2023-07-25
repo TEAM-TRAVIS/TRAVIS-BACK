@@ -1,12 +1,8 @@
+const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const { status, json } = require('express/lib/response');
 const UserModel = require('../models/userModel');
-
-// 사용자 로그인 성공 시 토큰을 생성하는 함수
-const generateToken = (user) => {
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-  return token;
-};
 
 // 회원가입
 exports.signup = async (req, res) => {
@@ -14,7 +10,7 @@ exports.signup = async (req, res) => {
     const { name, email, password } = req.body;
     // 이미 사용 중인 이메일인지 확인
     const existingUser = await UserModel.findOne({ email });
-
+    console.log('회원가입 성공 테스트');
     if (existingUser) {
       return res.status(400).json({ error: 'Email already exists' });
     }
@@ -29,16 +25,15 @@ exports.signup = async (req, res) => {
 };
 
 // 로그인
-exports.login = async (req, res) => {
-  try {
-    const { user } = req;
-    const token = generateToken(user);
-    console.log('메러러러러러러엉 (userController.js) 성공');
-    res.json({ user, token });
-  } catch (error) {
-    console.log('메렁 (userController.js)');
-    res.status(500).json({ error: 'Internal server error' });
-  }
+exports.login = (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({ error: 'Login failed' });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    return res.json({ user: user, token });
+  })(req, res, next);
 };
 
 // 로그아웃

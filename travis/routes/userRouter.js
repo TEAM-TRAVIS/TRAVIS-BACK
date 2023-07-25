@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const userController = require('../controllers/userController');
+const UserModel = require('../models/userModel');
 
 const router = express.Router();
 
@@ -15,16 +16,7 @@ router.post('/signup', userController.signup);
 router.get('/login', (req, res) => {
   res.render('login');
 });
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', { session: false }, (err, user) => {
-    if (err || !user) {
-      return res.status(401).json({ error: 'Login failed' });
-    }
-    console.log('성공쓰: userRouter.js');
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    return res.json({ user: user, token });
-  })(req, res, next);
-});
+router.post('/login', userController.login);
 
 // Logout
 router.get('/logout', userController.logout);

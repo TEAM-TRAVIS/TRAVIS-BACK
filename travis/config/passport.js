@@ -1,11 +1,10 @@
 const UserModel = require('../models/userModel');
-
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 
-// for 회원가입
+// 로그인 인증
 passport.use(
   new LocalStrategy(
     {
@@ -32,7 +31,7 @@ passport.use(
   ),
 );
 
-// for 로그인
+// JWT 토큰 읽어서 사용자 인증 (API 접근 인증)
 passport.use(
   new JWTStrategy(
     {
