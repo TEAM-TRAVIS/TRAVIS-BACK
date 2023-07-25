@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 // 로그인: session, passport
 const session = require('express-session');
 const passport = require('passport');
+const passportConfig = require('./config/passport');
 const swaggerFile = require('./public/common/swagger-output.json');
 
 // Router 미들웨어 추가

@@ -1,7 +1,14 @@
-const UserModel = require('../models/userModel');
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const UserModel = require('../models/userModel');
 
+// 사용자 로그인 성공 시 토큰을 생성하는 함수
+const generateToken = (user) => {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+  return token;
+};
+
+// 회원가입
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -21,48 +28,20 @@ exports.signup = async (req, res) => {
   }
 };
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-    },
-    async (email, password, done) => {
-      try {
-        const user = await UserModel.findOne({ email });
-
-        if (!user) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
-
-        const isPasswordMatch = await user.comparePassword(password);
-
-        if (!isPasswordMatch) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
-
-        return done(null, user);
-      } catch (error) {
-        return done(error);
-      }
-    },
-  ),
-);
-
-// 로그인 성공 -> 사용자 정보 session 에 저장
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-// 사용자 정보 session 에서 삭제
-passport.deserializeUser(async (id, done) => {
+// 로그인
+exports.login = async (req, res) => {
   try {
-    const user = await UserModel.findById(id);
-    done(null, user || false);
+    const { user } = req;
+    const token = generateToken(user);
+    console.log('메러러러러러러엉 (userController.js) 성공');
+    res.json({ user, token });
   } catch (error) {
-    done(error);
+    console.log('메렁 (userController.js)');
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
+};
 
+// 로그아웃
 exports.logout = (req, res) => {
   req.logout((err) => {
     if (err) {
