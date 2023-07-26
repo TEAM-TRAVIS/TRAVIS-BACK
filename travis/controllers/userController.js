@@ -1,7 +1,5 @@
-const express = require('express');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const { status, json } = require('express/lib/response');
 const UserModel = require('../models/userModel');
 
 // 회원가입
