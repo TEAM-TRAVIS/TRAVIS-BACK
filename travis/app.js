@@ -4,7 +4,6 @@ const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
-
 // 회원가입: bodyParser
 const bodyParser = require('body-parser');
 
@@ -13,6 +12,7 @@ const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./config/passport');
 const swaggerFile = require('./public/common/swagger-output.json');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Router 미들웨어 추가
 const indexRouter = require('./routes/index');
@@ -35,6 +35,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile, { explorer: t
 // 회원가입: bodyParser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// Enable CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 // 로그인: session, passport
 app.use(
@@ -51,6 +57,18 @@ app.use(passport.session()); // passport 세션 사용
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/main', mainRouter);
+
+// Routes
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the desired page
+    res.redirect('/'); // Change '/' to the desired page after successful login
+  },
+);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

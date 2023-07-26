@@ -1,8 +1,41 @@
 const UserModel = require('../models/userModel');
 const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URI,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if the user already exists in the database
+        let user = await UserModel.findOne({ email: profile.emails[0].value });
+
+        if (!user) {
+          // If the user doesn't exist, create a new one
+          user = await UserModel.create({
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            joinDate: Date.now(),
+          });
+        } else {
+          // If the user already exists, update the user's name
+          return done(null, user);
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    },
+  ),
+);
 
 // 로그인 인증
 passport.use(

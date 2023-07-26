@@ -1,8 +1,5 @@
 const express = require('express');
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const userController = require('../controllers/userController');
-const UserModel = require('../models/userModel');
 
 const router = express.Router();
 
@@ -20,5 +17,7 @@ router.post('/login', userController.login);
 
 // Logout
 router.get('/logout', userController.logout);
+
+// Google Login
 
 module.exports = router;
