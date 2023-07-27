@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Auto Deploy on Push
 
 on:
   push:
@@ -18,14 +18,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and Push Docker image
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Pull from Git and Deploy with Docker Compose
         run: |
           cd ~/TRAVIS-BACK
           git pull origin develop
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           cd ~/TRAVIS-BACK/travis
           docker-compose build
-          docker-compose push
-          docker-compose up
+          docker-compose up -d
