@@ -39,7 +39,7 @@ jobs:
         with:
             host: ${{ secrets.EC2_HOST
             username: ${{ secrets.SSH_USERNAME }}
-            key: ${{ secrets.EC2_KEY
+            key: ${{ secrets.EC2_KEY}}
             script: |
                 cd ./travis
                 docker-compose down
