@@ -37,7 +37,7 @@ jobs:
       - name: Application Run
         uses: appleboy/ssh-action@v0.1.6
         with:
-            host: ${{ secrets.EC2_HOST
+            host: ${{ secrets.EC2_HOST}}
             username: ${{ secrets.SSH_USERNAME }}
             key: ${{ secrets.EC2_KEY}}
             script: |
