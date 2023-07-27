@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  # MongoDB service
+  db:
+    build:
+      context: ./public/docker
+    image: zmdk966/mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017" # Map container's port 27017 to host's port 27017
+    volumes:
+      - mongodb_data:/data/db # Persist MongoDB data outside the container
+    networks:
+      - my_network
+
+  # Node.js server service
+  server:
+    build:
+      context: .
+    image: zmdk966/travis:latest
+    container_name: my_node_server
+    ports:
+      - "3000:3000" # Map container's port 3000 to host's port 3000
+    environment:
+      - DATABASE=${DATABASE} # Update with your actual database name
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD} # Update with your actual database password
+    networks:
+      - my_network
+    depends_on:
+      - db # Wait for MongoDB container to be up before starting the server
+    volumes:
+      - ./app.js:/app/app.js # Mount app.js in the root directory
+      - ./server.js:/app/server.js # Mount server.js in the root directory
+      - ./package.json:/app/package.json # Mount package.json in the root directory
+      - ./controllers:/app/controllers/ # Mount controllers folder
+      - ./models:/app/models/ # Mount models folder
+      - ./routes:/app/routes/ # Mount routes folder
+
+
+volumes:
+  mongodb_data: # Define the named volume to persist MongoDB data
+
+networks:
+  my_network: # Define a custom bridge network for the services
+    driver: bridge
