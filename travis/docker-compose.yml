@@ -1,5 +1,17 @@
 version: '3.8'
 services:
+#   Nginx service
+  nginx:
+    image: nginx:latest
+    container_name: my_nginx
+    ports:
+      - "80:80" # Map container's port 80 to host's port 80
+    depends_on:
+      - server # Wait for the Express.js server container to be up before starting nginx
+    networks:
+      - my_network
+
+
   # MongoDB service
   db:
     build:
@@ -24,17 +36,21 @@ services:
     environment:
       - DATABASE=${DATABASE} # Update with your actual database name
       - DATABASE_PASSWORD=${DATABASE_PASSWORD} # Update with your actual database password
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} # Update with your actual Google Client ID
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET} # Update with your actual Google Client
+      - GOOGLE_CALLBACK_URI=${GOOGLE_CALLBACK_URI} # Update with your actual Google Callback URL
+      - SESSION_SECRET=${SESSION_SECRET} # Update with your actual session secret
+      - JWT_SECRET=${JWT_SECRET} # Update with your actual JWT secret
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN} # Update with your actual JWT expiration time
+      - JWT_COOKIE_EXPIRES_IN=${JWT_COOKIE_EXPIRES_IN} # Update with your actual JWT cookie expiration time
+      - EMAIL_USERNAME=${EMAIL_USERNAME} # Update with your actual email username
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD} # Update with your actual email password
+      - EMAIL_HOST=${EMAIL_HOST} # Update with your actual email host
     networks:
       - my_network
     depends_on:
       - db # Wait for MongoDB container to be up before starting the server
-    volumes:
-      - ./app.js:/app/app.js # Mount app.js in the root directory
-      - ./server.js:/app/server.js # Mount server.js in the root directory
-      - ./package.json:/app/package.json # Mount package.json in the root directory
-      - ./controllers:/app/controllers/ # Mount controllers folder
-      - ./models:/app/models/ # Mount models folder
-      - ./routes:/app/routes/ # Mount routes folder
+
 
 
 volumes:
