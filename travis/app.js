@@ -17,6 +17,7 @@ const swaggerFile = require('./public/common/swagger-output.json');
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
+const GPSRouter = require('./routes/GPSRouter');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use(passport.session()); // passport 세션 사용
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/main', mainRouter);
+app.use('/GPS', GPSRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
