@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const GPSModel = require('./GPSModel'); // Import the GPS Model
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: [true, 'Name is required'] },
   email: { type: String, required: [true, 'Email is required'], unique: true },
-  password: { type: String, required: [true, 'Password is required'] },
+  password: { type: String, required: false },
   joinDate: { type: Date, required: true },
   records: [
     {

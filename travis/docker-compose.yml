@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+#   Nginx service
+  nginx:
+    image: nginx:latest
+    container_name: my_nginx
+    ports:
+      - "80:80" # Map container's port 80 to host's port 80
+    depends_on:
+      - server # Wait for the Express.js server container to be up before starting nginx
+    networks:
+      - my_network
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+
+  # MongoDB service
+  db:
+    build:
+      context: ./public/docker
+    image: zmdk966/mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017" # Map container's port 27017 to host's port 27017
+    volumes:
+      - mongodb_data:/data/db # Persist MongoDB data outside the container
+    networks:
+      - my_network
+
+  # Node.js server service
+  server:
+    build:
+      context: .
+    image: zmdk966/travis:latest
+    container_name: my_node_server
+    ports:
+      - "3000:3000" # Map container's port 3000 to host's port 3000
+    environment:
+      - DATABASE=${DATABASE} # Update with your actual database name
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD} # Update with your actual database password
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} # Update with your actual Google Client ID
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET} # Update with your actual Google Client
+      - GOOGLE_CALLBACK_URI=${GOOGLE_CALLBACK_URI} # Update with your actual Google Callback URL
+      - SESSION_SECRET=${SESSION_SECRET} # Update with your actual session secret
+      - JWT_SECRET=${JWT_SECRET} # Update with your actual JWT secret
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN} # Update with your actual JWT expiration time
+      - JWT_COOKIE_EXPIRES_IN=${JWT_COOKIE_EXPIRES_IN} # Update with your actual JWT cookie expiration time
+      - EMAIL_USERNAME=${EMAIL_USERNAME} # Update with your actual email username
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD} # Update with your actual email password
+      - EMAIL_HOST=${EMAIL_HOST} # Update with your actual email host
+    networks:
+      - my_network
+    depends_on:
+      - db # Wait for MongoDB container to be up before starting the server
+
+
+
+volumes:
+  mongodb_data: # Define the named volume to persist MongoDB data
+
+networks:
+  my_network: # Define a custom bridge network for the services
+    driver: bridge
