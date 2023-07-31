@@ -51,7 +51,7 @@ app.use(passport.session()); // passport 세션 사용
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/main', mainRouter);
-app.use('/GPS', GPSRouter);
+app.use('/gps', GPSRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
