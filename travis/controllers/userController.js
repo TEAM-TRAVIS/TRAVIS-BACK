@@ -37,29 +37,49 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   // 인증 이메일 내용
-  const emailTemplate =
-    '<h1>Verify your email</h1><p>Please click the button below to verify your email.</p><a href="http://localhost:3000//verify-email/${token}">Verify My Email</a>';
+  const emailTemplate = `<h1>Verify your email</h1><p>Please click the button below to verify your email.</p><a href="http://localhost:3000/user/verify-email/${token}">Verify My Email</a>`;
 
   await sendEmail(email, 'Travis: Email Verification', emailTemplate);
   res.status(201).json({ message: 'User created successfully', user });
 });
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmail = catchAsync(async (req, res) => {
   try {
     const { token } = req.params;
+    console.log('heyyy');
 
+    // 토큰을 디코딩하고 유효성을 검사합니다.
     const decodedToken = await verifyToken(token);
-    if (decodedToken) {
-      const user = await UserModel.findOneAndUpdate(
-        { emailVerificationToken: token },
-        { isEmailVerified: true },
-      );
+
+    // 토큰이 유효하다면, decodedToken에 디코딩된 정보가 들어있습니다.
+    // 이 정보를 활용하여 사용자를 인증하고, 인증 상태를 변경합니다.
+    const user = await UserModel.findOneAndUpdate(
+      { email: decodedToken.email },
+      { isEmailVerified: true },
+    );
+
+    if (!user) {
+      console.error('사용자를 찾을 수 없음');
+      return res.redirect('/email-verification-failure');
     }
-    res.redirect('/');
+
+    res.redirect('/emailSuccess');
+    console.log('userController');
   } catch (error) {
     console.error('이메일 인증 오류:', error);
     res.redirect('/email-verification-failure');
   }
+});
+
+exports.emailVerificationSuccess = (req, res) => {
+  // 인증이 성공적으로 완료되면 사용자를 인증이 완료된 상태로 변경하거나, 이후 로그인 절차를 진행하도록 합니다.
+  // 여기서는 인증이 성공적으로 완료되었다는 메시지를 보여줍니다.
+  res.send('이메일 인증이 성공적으로 완료되었습니다.');
+};
+
+exports.emailVerificationFailure = (req, res) => {
+  // 인증이 실패한 경우 실패 메시지를 보여줍니다.
+  res.send('이메일 인증에 실패했습니다. 올바른 인증 링크를 클릭해주세요.');
 };
 
 // 로그인
