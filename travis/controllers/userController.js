@@ -5,6 +5,18 @@ const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
 const AppError = require('../utils/appError');
 
+exports.getAllUsers = catchAsync(async (req, res) => {
+  const users = await UserModel.find();
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
+
 function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
