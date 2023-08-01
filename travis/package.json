@@ -29,7 +29,8 @@
     "passport-local-mongoose": "^8.0.0",
     "swagger-autogen": "^2.23.5",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "validator": "^13.9.0"
   },
   "devDependencies": {
     "eslint": "^8.45.0",
