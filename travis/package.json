@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server",
+    "start:prod": "NODE_ENV=production node ./server",
     "swagger-autogen": "node ./swagger.js"
   },
   "dependencies": {

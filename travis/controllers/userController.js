@@ -40,6 +40,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const emailTemplate = `<h1>Verify your email</h1><p>Please click the button below to verify your email.</p><a href="http://localhost:3000/user/verify-email/${token}">Verify My Email</a>`;
 
   await sendEmail(email, 'Travis: Email Verification', emailTemplate);
+
   res.status(201).json({ message: 'User created successfully', user });
 });
 
