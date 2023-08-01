@@ -9,6 +9,9 @@ router.get('/signup', (req, res) => {
 });
 router.post('/signup', userController.signup);
 
+// After email verification
+router.get('/verify-email/:token', userController.verifyEmail);
+
 // Login
 router.get('/login', (req, res) => {
   res.render('login');
@@ -17,7 +20,5 @@ router.post('/login', userController.login);
 
 // Logout
 router.get('/logout', userController.logout);
-
-// Google Login
 
 module.exports = router;

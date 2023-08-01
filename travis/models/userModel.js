@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: [true, 'Email is required'], unique: true },
   password: { type: String, required: false },
   joinDate: { type: Date, required: true },
+  emailVerificationToken: { type: String },
+  isEmailVerified: { type: Boolean, default: false },
   records: [
     {
       record_id: { type: Number, required: false, unique: true, sparse: true },
