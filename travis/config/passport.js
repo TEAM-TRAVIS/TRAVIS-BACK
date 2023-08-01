@@ -13,24 +13,28 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URI,
     },
-    catchAsync(async (accessToken, refreshToken, profile, done) => {
-      // Check if the user already exists in the database
-      let user = await UserModel.findOne({ email: profile.emails[0].value });
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if the user already exists in the database
+        let user = await UserModel.findOne({ email: profile.emails[0].value });
 
-      if (!user) {
-        // If the user doesn't exist, create a new one
-        user = await UserModel.create({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          joinDate: Date.now(),
-        });
-      } else {
-        // If the user already exists, update the user's name
+        if (!user) {
+          // If the user doesn't exist, create a new one
+          user = await UserModel.create({
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            joinDate: Date.now(),
+          });
+        } else {
+          // If the user already exists, update the user's name
+          return done(null, user);
+        }
+
         return done(null, user);
+      } catch (error) {
+        return done(error);
       }
-
-      return done(null, user);
-    }),
+    },
   ),
 );
 
@@ -80,9 +84,11 @@ passport.serializeUser((user, done) => {
 });
 
 // 사용자 정보 session 에서 삭제
-passport.deserializeUser(
-  catchAsync(async (id, done) => {
+passport.deserializeUser(async (id, done) => {
+  try {
     const user = await UserModel.findById(id);
     done(null, user || false);
-  }),
-);
+  } catch (error) {
+    done(error);
+  }
+});
