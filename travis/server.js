@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
-// uncaughtException 이벤트 리스너를 등록함
+// uncaughtException: Node.js 프로세스에서 발생하지 않은 예외 처리
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message, err.stack);
@@ -42,8 +42,11 @@ const server = http.createServer(app);
 // listen
 server.listen(port);
 
-process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+// unhandledRejection: 프로미스가 rejected 되었지만 처리되지 않은 경우
+process.on('unhandledRejection', (err) => {
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
   console.log(err.name, err.message, err.stack);
-  process.exit(1);
+  server.close(() => {
+    process.exit(1);
+  });
 });
