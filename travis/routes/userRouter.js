@@ -3,6 +3,8 @@ const userController = require('../controllers/userController');
 
 const router = express.Router();
 
+router.route('/').get(userController.getAllUsers);
+
 // Sign up
 router.get('/signup', (req, res) => {
   res.render('signup');
