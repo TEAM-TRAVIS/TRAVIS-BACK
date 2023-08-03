@@ -51,16 +51,20 @@ const getFileFromS3 = async (uploadRoute) => {
 
 //몽고DB 업로드
 const saveToMongo = async (email, date, dist, time, svRt) => {
-  let GPSDB = await GPSModel.findOne({ id });
-
-  // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
-  if (!GPSDB) {
-    GPSDB = new GPSModel({ email: email, records: [] });
-  }
-  // 새로운 레코드 추가
-  GPSDB.records.push({ date, dist, time, svRt });
-
   try {
+    let GPSDB = await GPSModel.findOne({ email });
+
+    // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
+    if (!GPSDB) {
+      GPSDB = new GPSModel({ email, to_dist: dist, to_time: time, records: [] });
+    } else {
+      // 총 거리, 총 시간 갱신
+      GPSDB.to_dist += dist;
+      GPSDB.to_time += time;
+    }
+
+    GPSDB.records.push({ date, dist, time, svRt }); // 새 레코드 push
+
     await GPSDB.save(); // 저장
     console.log('GPS 데이터 업로드 성공!');
   } catch (error) {
@@ -75,7 +79,7 @@ exports.saveGPS = async (req, res) => {
     // S3 업로드 경로
     const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${email}/${time}`, // user1/2023080213440503
+      Key: `${email}/${date}`, // user1/2023080213440503
     };
 
     //S3에 file 업로드
@@ -100,3 +104,31 @@ exports.saveGPS = async (req, res) => {
 };
 
 //성공시 response의 uploadedURL로 들어가면 request에 해당하는 내용의 파일이 다운되어야함.
+
+// Controller to handle the GET request for a specific user
+exports.getUserGPS = async (req, res) => {
+  try {
+    const { email } = req.params; //url에 포함된 정보 추츨
+
+    // Find the GPS data for the specific user
+    const userGPS = await GPSModel.findOne({ email });
+
+    if (!userGPS) {
+      return res.status(404).json({ message: '해당 유저로 저장된 GPS 데이터가 없습니다.' });
+    }
+
+    // 유저의 모든 GPS summary 데이터 추출
+    const userData = userGPS.records.map(({ date, dist, time }) => ({ date, dist, time }));
+
+    // to_dist, to_time 데이터도 포함하여 응답으로 보냄
+    const responsePayload = {
+      to_dist: userGPS.to_dist,
+      to_time: userGPS.to_time,
+      userData: userData,
+    };
+
+    return res.status(200).json(responsePayload);
+  } catch (error) {
+    res.status(500).json({ error: '유저의 GPS 데이터 가져오기 실패.', 'error 내용': error });
+  }
+};
