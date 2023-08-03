@@ -7,6 +7,8 @@ const GPSSchema = new mongoose.Schema({
     ref: 'UserModel',
     required: [true, 'User email is required'],
   },
+  to_dist: { type: Number, required: [true, 'Total distance is required'] }, //해당 유저의 총 거리
+  to_time: { type: Number, required: [true, 'Total time is required'] }, //해당 유저의 총 시간
   records: [
     {
       date: { type: Number, required: [true, 'Record date is required'] }, //측정일
