@@ -5,8 +5,19 @@ const saveGPSController = require('../controllers/saveGPSController');
 
 const router = express.Router();
 
-router.get('/read/:name', getSummaryController.getUserSummary); //마이페이지
-router.get('/read/:name/:date', getGPSController.getUserGpS); //상세페이지
-router.post('/save', saveGPSController.saveGPS); //[save] 눌렀을 때
+//마이페이지
+router.get('/summary', (req, res) => {
+  res.render('summary');
+});
+router.post('/summary', getSummaryController.getUserSummary);
+
+//상세페이지
+router.get('/detail', (req, res) => {
+  res.render('detail');
+});
+router.post('/detail', getGPSController.getUserGPS);
+
+//[save] 눌렀을 때
+router.post('/save', saveGPSController.saveGPS);
 
 module.exports = router;
