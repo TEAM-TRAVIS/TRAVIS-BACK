@@ -18,6 +18,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
+const GPSRouter = require('./routes/GPSRouter');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -54,6 +55,7 @@ app.use(passport.session()); // passport 세션 사용
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/main', mainRouter);
+app.use('/gps', GPSRouter);
 
 // Routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
