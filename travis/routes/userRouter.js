@@ -3,11 +3,16 @@ const userController = require('../controllers/userController');
 
 const router = express.Router();
 
+router.route('/').get(userController.getAllUsers);
+
 // Sign up
 router.get('/signup', (req, res) => {
   res.render('signup');
 });
 router.post('/signup', userController.signup);
+
+// After email verification
+router.get('/verify-email/:token', userController.verifyEmail);
 
 // Login
 router.get('/login', (req, res) => {
@@ -17,7 +22,5 @@ router.post('/login', userController.login);
 
 // Logout
 router.get('/logout', userController.logout);
-
-// Google Login
 
 module.exports = router;

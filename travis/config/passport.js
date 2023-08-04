@@ -4,6 +4,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+const catchAsync = require('../utils/catchAsync');
 
 passport.use(
   new GoogleStrategy(
@@ -44,23 +45,19 @@ passport.use(
       usernameField: 'email',
       passwordField: 'password', // 생략 가능
     },
-    async (email, password, done) => {
-      try {
-        const user = await UserModel.findOne({ email });
-        if (!user) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
-
-        const isPasswordMatch = await user.comparePassword(password);
-        if (!isPasswordMatch) {
-          return done(null, false, { message: 'Invalid email or password' });
-        }
-
-        return done(null, user);
-      } catch (error) {
-        return done(error);
+    catchAsync(async (email, password, done) => {
+      const user = await UserModel.findOne({ email }).select('+password');
+      if (!user) {
+        return done(null, false, { message: 'Invalid email or password' });
       }
-    },
+
+      const isPasswordMatch = await user.comparePassword(password, user.password);
+      if (!isPasswordMatch) {
+        return done(null, false, { message: 'Invalid email or password' });
+      }
+
+      return done(null, user);
+    }),
   ),
 );
 
@@ -71,17 +68,13 @@ passport.use(
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_SECRET,
     },
-    async (jwtPayload, done) => {
-      try {
-        const user = await UserModel.findById(jwtPayload.id);
-        if (!user) {
-          return done(null, false, { message: 'Invalid token' });
-        }
-        return done(null, user);
-      } catch (error) {
-        return done(error);
+    catchAsync(async (jwtPayload, done) => {
+      const user = await UserModel.findById(jwtPayload.id);
+      if (!user) {
+        return done(null, false, { message: 'Invalid token' });
       }
-    },
+      return done(null, user);
+    }),
   ),
 );
 

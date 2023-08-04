@@ -20,6 +20,9 @@ const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
 const GPSRouter = require('./routes/GPSRouter');
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+
 const app = express();
 
 // view engine setup
@@ -36,7 +39,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile, { explorer: t
 // 회원가입: bodyParser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// Enable CORS
 
 // 로그인: session, passport
 app.use(
@@ -68,19 +70,10 @@ app.get(
 );
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createError(404));
+app.all('*', (req, res, next) => {
+  next(createError(404, 'Not Found'));
 });
-
 // error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use(globalErrorHandler);
 
 module.exports = app;
