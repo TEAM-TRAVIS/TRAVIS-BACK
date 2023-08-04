@@ -3,10 +3,10 @@ const GPSModel = require('../models/GPSModel');
 //AWS S3에서 특정 날짜의 gzip 파일 GET
 exports.getUserSummary = async (req, res) => {
   try {
-    const { name } = req.params; //url에 포함된 정보 추츨
+    const { email } = req.body; //url에 포함된 정보 추츨
 
     // Find the GPS data for the specific user
-    const userGPS = await GPSModel.findOne({ name });
+    const userGPS = await GPSModel.findOne({ email });
 
     if (!userGPS) {
       return res.status(404).json({ message: '해당 유저로 저장된 GPS 데이터가 없습니다.' });

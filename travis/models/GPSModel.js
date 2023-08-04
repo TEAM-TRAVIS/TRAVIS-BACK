@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const GPSSchema = new mongoose.Schema({
   //userModel 참조
-  name: {
+  email: {
     type: String,
     ref: 'UserModel',
-    required: [true, 'User name is required'],
+    required: [true, 'User email is required'],
   },
   to_dist: { type: Number, required: [true, 'Total distance is required'] }, //해당 유저의 총 거리
   to_time: { type: Number, required: [true, 'Total time is required'] }, //해당 유저의 총 시간

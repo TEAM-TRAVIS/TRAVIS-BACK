@@ -36,13 +36,13 @@ const uploadToS3 = async (uploadRoute, file) => {
 };
 
 //몽고DB 업로드
-const saveToMongo = async (name, date, dist, time, svRt) => {
+const saveToMongo = async (email, date, dist, time, svRt) => {
   try {
-    let GPSDB = await GPSModel.findOne({ name });
+    let GPSDB = await GPSModel.findOne({ email });
 
     // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
     if (!GPSDB) {
-      GPSDB = new GPSModel({ name, to_dist: dist, to_time: time, records: [] });
+      GPSDB = new GPSModel({ email, to_dist: dist, to_time: time, records: [] });
     } else {
       // 총 거리, 총 시간 갱신
       GPSDB.to_dist += dist;
@@ -60,19 +60,19 @@ const saveToMongo = async (name, date, dist, time, svRt) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    const { name, date, dist, time, file } = req.body;
+    const { email, date, dist, time, file } = req.body;
 
     // S3 업로드 경로
     const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${name}/${date}`, // user1/2023080213440503
+      Key: `${email}/${date}`, // user1/2023080213440503
     };
 
     //S3에 file 업로드
     const uploadedURL = await uploadToS3(uploadRoute, file); //업로드 후 업로드 경로를 변수에 저장.
 
     //몽고DB 업로드
-    saveToMongo(name, date, dist, time, uploadRoute.Key);
+    saveToMongo(email, date, dist, time, uploadRoute.Key);
 
     //response
     return res.status(201).json({
