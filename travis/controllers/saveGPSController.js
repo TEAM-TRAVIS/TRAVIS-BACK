@@ -14,18 +14,11 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-
-//json 타입을 Buffer 타입으로 변환하는 함수
-const jsonToBuffer = async (jsonInput) => {
-  const jsonString = JSON.stringify(jsonInput); // JSON 객체를 string로 변환
-  const bufferFile = Buffer.from(jsonString); //string을 Buffer type으로 바꾸기
-  return bufferFile;
-};
-
 //s3에 파일 업로드
 const uploadToS3 = async (uploadRoute, file) => {
   //buffer 타입으로 변경
-  const bufferFile = await jsonToBuffer(file);
+  const bufferFile = Buffer.from(file);
+
   //담기
   const uploadParams = {
     Bucket: uploadRoute.Bucket,
@@ -42,21 +35,14 @@ const uploadToS3 = async (uploadRoute, file) => {
   }
 };
 
-// S3에 업로드된 파일 조회
-const getFileFromS3 = async (uploadRoute) => {
-  const getObjectData = await s3.getObject(uploadRoute).promise();
-  const file = getObjectData.Body.toString('utf-8'); //인코딩
-  return file;
-};
-
 //몽고DB 업로드
-const saveToMongo = async (email, date, dist, time, svRt) => {
+const saveToMongo = async (name, date, dist, time, svRt) => {
   try {
-    let GPSDB = await GPSModel.findOne({ email });
+    let GPSDB = await GPSModel.findOne({ name });
 
     // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
     if (!GPSDB) {
-      GPSDB = new GPSModel({ email, to_dist: dist, to_time: time, records: [] });
+      GPSDB = new GPSModel({ name, to_dist: dist, to_time: time, records: [] });
     } else {
       // 총 거리, 총 시간 갱신
       GPSDB.to_dist += dist;
@@ -74,21 +60,19 @@ const saveToMongo = async (email, date, dist, time, svRt) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    const { email, date, dist, time, file } = req.body;
+    const { name, date, dist, time, file } = req.body;
 
     // S3 업로드 경로
     const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${email}/${date}`, // user1/2023080213440503
+      Key: `${name}/${date}`, // user1/2023080213440503
     };
 
     //S3에 file 업로드
     const uploadedURL = await uploadToS3(uploadRoute, file); //업로드 후 업로드 경로를 변수에 저장.
 
     //몽고DB 업로드
-    saveToMongo(email, date, dist, time, uploadRoute.Key);
-
-    const uploadedFile = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
+    saveToMongo(name, date, dist, time, uploadRoute.Key);
 
     //response
     return res.status(201).json({
@@ -96,7 +80,6 @@ exports.saveGPS = async (req, res) => {
       reqHeader: req.headers,
       reqBody: req.body,
       uploadedURL: uploadedURL,
-      uploadedFile: uploadedFile,
     });
   } catch (error) {
     res.status(500).json({ error: 'GPSController.js saveGPS의 error 발생', ' error내용': error });
@@ -104,31 +87,3 @@ exports.saveGPS = async (req, res) => {
 };
 
 //성공시 response의 uploadedURL로 들어가면 request에 해당하는 내용의 파일이 다운되어야함.
-
-// Controller to handle the GET request for a specific user
-exports.getUserGPS = async (req, res) => {
-  try {
-    const { email } = req.params; //url에 포함된 정보 추츨
-
-    // Find the GPS data for the specific user
-    const userGPS = await GPSModel.findOne({ email });
-
-    if (!userGPS) {
-      return res.status(404).json({ message: '해당 유저로 저장된 GPS 데이터가 없습니다.' });
-    }
-
-    // 유저의 모든 GPS summary 데이터 추출
-    const userData = userGPS.records.map(({ date, dist, time }) => ({ date, dist, time }));
-
-    // to_dist, to_time 데이터도 포함하여 응답으로 보냄
-    const responsePayload = {
-      to_dist: userGPS.to_dist,
-      to_time: userGPS.to_time,
-      userData: userData,
-    };
-
-    return res.status(200).json(responsePayload);
-  } catch (error) {
-    res.status(500).json({ error: '유저의 GPS 데이터 가져오기 실패.', 'error 내용': error });
-  }
-};
