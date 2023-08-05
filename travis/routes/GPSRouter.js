@@ -13,6 +13,11 @@ router.get('/summary', (req, res) => {
 router.post('/summary', getSummaryController.getUserSummary);
 
 // 상세페이지
+router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
+router.post('/weekly/:year/:week', getSummaryController.getWeeklySummary);
+router.post('/monthly/:year/:month', getSummaryController.getMonthlySummary);
+router.post('/yearly/:year', getSummaryController.getYearlySummary);
+
 router.get('/detail', (req, res) => {
   res.render('detail');
 });

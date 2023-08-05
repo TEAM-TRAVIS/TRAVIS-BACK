@@ -11,7 +11,7 @@ const GPSSchema = new mongoose.Schema({
   to_time: { type: Number, required: [true, 'Total time is required'] }, //해당 유저의 총 시간
   records: [
     {
-      date: { type: Number, required: [true, 'Record date is required'] }, //측정일
+      date: { type: Date, default: Date.now(), required: [true, 'Record date is required'] }, //측정일
       dist: { type: Number, required: [true, 'Distance is required'] }, //총 이동거리
       time: { type: Number, required: [true, 'Duration time is required'] }, //총 이동시간
       svRt: { type: String, required: [true, 'AWS S3 save route is required'] }, //S3에 저장된 경로
