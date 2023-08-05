@@ -24,11 +24,13 @@ const getFileFromS3 = async (uploadRoute) => {
 
 exports.getUserGPS = catchAsync(async (req, res, next) => {
   const { email, date } = await req.body;
-  console.log(email, date);
+  const dateObj = new Date(date);
+  const timestamp = dateObj.getTime();
+  console.log(email, timestamp);
   // S3 업로드 경로
   const uploadRoute = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `${email}/${date}`, // user1/2023080213440503
+    Key: `${email}/${timestamp}`, // user1/2023080213440503
   };
   const gzipFile = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
   //response
