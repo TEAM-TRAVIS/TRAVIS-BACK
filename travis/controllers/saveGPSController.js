@@ -60,7 +60,8 @@ const saveToMongo = async (email, date, dist, time, svRt) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    const { email, date, dist, time, file } = req.body;
+    const { email, dist, time, file } = req.body;
+    const date = Date.now();
 
     // S3 업로드 경로
     const uploadRoute = {

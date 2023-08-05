@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
   isEmailVerified: { type: Boolean, default: false },
   records: [
     {
-      record_id: { type: Number, required: false, unique: true, sparse: true },
       date: { type: Date, required: false },
       text: { type: String, required: false },
       duration: { type: Number, required: false },

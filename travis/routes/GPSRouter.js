@@ -20,4 +20,6 @@ router.post('/detail', getGPSController.getUserGPS);
 //[save] 눌렀을 때
 router.post('/save', saveGPSController.saveGPS);
 
+router.get('daily-gps/:year:month', getGPSController.getUserGPS);
+
 module.exports = router;
