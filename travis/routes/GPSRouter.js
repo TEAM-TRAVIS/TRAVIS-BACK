@@ -11,6 +11,11 @@ router.get('/summary', (req, res) => {
 });
 router.post('/summary', getSummaryController.getUserSummary);
 
+router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
+router.post('/weekly/:year/:week', getSummaryController.getWeeklySummary);
+router.post('/monthly/:year/:month', getSummaryController.getMonthlySummary);
+router.post('/yearly/:year', getSummaryController.getYearlySummary);
+
 //상세페이지
 router.get('/detail', (req, res) => {
   res.render('detail');
@@ -19,7 +24,5 @@ router.post('/detail', getGPSController.getUserGPS);
 
 //[save] 눌렀을 때
 router.post('/save', saveGPSController.saveGPS);
-
-router.get('daily-gps/:year:month', getGPSController.getUserGPS);
 
 module.exports = router;
