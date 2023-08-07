@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -14,8 +12,6 @@ dotenv.config({ path: './.env' });
 const app = require('./app');
 const debug = require('debug')('travis:server');
 const http = require('http');
-
-// userModel.js 불러옴
 
 // .env 에서 PORT 환경 변수 가져오고, 없으면 디폴트로 3000번
 const port = process.env.PORT || 3000;
