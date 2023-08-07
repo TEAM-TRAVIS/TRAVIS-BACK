@@ -39,14 +39,16 @@ const uploadToS3 = async (uploadRoute, file) => {
 const saveToMongo = async (email, date, dist, time, svRt) => {
   try {
     let GPSDB = await GPSModel.findOne({ email });
+    const dist_Number = Number(dist);
+    const time_Number = Number(time);
 
     // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
     if (!GPSDB) {
-      GPSDB = new GPSModel({ email, to_dist: dist, to_time: time, records: [] });
+      GPSDB = new GPSModel({ email, to_dist: dist_Number, to_time: time_Number, records: [] });
     } else {
       // 총 거리, 총 시간 갱신
-      GPSDB.to_dist += dist;
-      GPSDB.to_time += time;
+      GPSDB.to_dist += dist_Number;
+      GPSDB.to_time += time_Number;
     }
 
     GPSDB.records.push({ date, dist, time, svRt }); // 새 레코드 push
