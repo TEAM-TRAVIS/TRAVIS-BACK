@@ -36,16 +36,16 @@ exports.sendUserGpsSummary = async (req, res) => {
     const endDate = new Date().toISOString();
 
     // MongoDB에서 필터링된 GPS 데이터를 조회
+
     const gpsDataResults = await GPSModel.find({
       email: email,
       'records.date': { $gte: startDate, $lte: endDate },
     }).select('records.svRt');
 
     // S3에서 GPS 데이터를 가져옴
-    const gpsDataPromises = gpsDataResults.map(({ records }) => {
-      const fileKey = records.svRt;
-      return getGPSDataFromS3(fileKey);
-    });
+    const gpsDataPromises = gpsDataResults
+      .flatMap((innerArray) => innerArray.records.map(({ svRt }) => svRt))
+      .map((fileKey) => getGPSDataFromS3(fileKey));
 
     // S3에서 가져온 GPS 데이터를 합쳐서 클라이언트에 보냄
     const combinedData = await Promise.all(gpsDataPromises);
@@ -53,7 +53,6 @@ exports.sendUserGpsSummary = async (req, res) => {
       message: 'Successful in searching GPS data',
       gpsData: combinedData,
     });
-    console.log('combinedData: ', combinedData);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
