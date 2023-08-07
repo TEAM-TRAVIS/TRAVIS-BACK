@@ -26,4 +26,7 @@ router.post('/detail', getGPSController.getUserGPS);
 // [save] 눌렀을 때
 router.post('/save', saveGPSController.saveGPS);
 
+// x일 동안의 GPS 데이터 합침
+router.get('/accumulated/:email', accumulatedGPSController.sendUserGpsSummary);
+
 module.exports = router;

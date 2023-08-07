@@ -9,7 +9,7 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-// S3에서 GPS 데이터를 가져오는 함수
+// S3에서 GPS 데이터 가져오기
 const getGPSDataFromS3 = async (fileKey) => {
   try {
     const getObjectData = await s3
@@ -21,11 +21,11 @@ const getGPSDataFromS3 = async (fileKey) => {
     const gpsData = getObjectData.Body.toString('utf-8');
     return gpsData;
   } catch (error) {
-    throw new Error('GPS 데이터 조회에 실패했습니다.');
+    throw new Error('It failed to search GPS data');
   }
 };
 
-// 필터링된 GPS 데이터를 클라이언트에 보내는 함수
+// 필터링된 GPS 데이터 합쳐서 클라이언트로 보냄
 exports.sendUserGpsSummary = async (req, res) => {
   try {
     const { email } = req.params;
@@ -39,18 +39,21 @@ exports.sendUserGpsSummary = async (req, res) => {
     const gpsDataResults = await GPSModel.find({
       email: email,
       'records.date': { $gte: startDate, $lte: endDate },
-    }).select('records.file');
+    }).select('records.svRt');
 
-    // S3에서 GPS 데이터를 가져옵니다
+    // S3에서 GPS 데이터를 가져옴
     const gpsDataPromises = gpsDataResults.map(({ records }) => {
-      const fileKey = records.file;
+      const fileKey = records.svRt;
       return getGPSDataFromS3(fileKey);
     });
 
-    // S3에서 가져온 GPS 데이터를 합쳐서 클라이언트에 보냅니다
+    // S3에서 가져온 GPS 데이터를 합쳐서 클라이언트에 보냄
     const combinedData = await Promise.all(gpsDataPromises);
-
-    res.status(200).json({ message: 'GPS 데이터 조회 성공', gpsData: combinedData });
+    res.status(200).json({
+      message: 'Successful in searching GPS data',
+      gpsData: combinedData,
+    });
+    console.log('combinedData: ', combinedData);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

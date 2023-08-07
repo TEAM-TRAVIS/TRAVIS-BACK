@@ -66,7 +66,7 @@ exports.saveGPS = async (req, res) => {
     // S3 업로드 경로
     const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${email}/${date}`, // user1/2023080213440503
+      Key: `${email}/${date}`, // seung@eon.kim/2023080213440503
     };
 
     //S3에 file 업로드
