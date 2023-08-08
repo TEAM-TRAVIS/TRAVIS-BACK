@@ -31,7 +31,7 @@ exports.sendUserGpsSummary = async (req, res) => {
     const { email } = req.params;
     const { days } = req.query;
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - days);
+    if (days) currentDate.setDate(currentDate.getDate() - days);
     const startDate = currentDate.toISOString();
     const endDate = new Date().toISOString();
 
@@ -39,7 +39,7 @@ exports.sendUserGpsSummary = async (req, res) => {
 
     const gpsDataResults = await GPSModel.find({
       email: email,
-      'records.date': { $gte: startDate, $lte: endDate },
+      'records.date': days == null ? { $lte: endDate } : { $gte: startDate, $lte: endDate },
     }).select('records.svRt');
 
     // S3에서 GPS 데이터를 가져옴
