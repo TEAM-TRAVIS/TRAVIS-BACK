@@ -15,15 +15,6 @@ const userSchema = new mongoose.Schema({
   joinDate: { type: Date, required: true },
   emailVerificationToken: { type: String },
   isEmailVerified: { type: Boolean, default: false },
-  records: [
-    {
-      date: { type: Date, required: false },
-      text: { type: String, required: false },
-      duration: { type: Number, required: false },
-      distance: { type: Number, required: false },
-      GPS: [{ type: mongoose.Schema.Types.ObjectId, ref: 'GPSModel' }], // Reference to GPSModel
-    },
-  ],
 });
 
 // 비밀번호 암호화
