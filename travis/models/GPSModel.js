@@ -25,6 +25,10 @@ const GPSSchema = new mongoose.Schema({
         required: [true, 'Distance is required'],
       }, //총 이동거리
       time: { type: Number, required: [true, 'Duration time is required'] }, //총 이동시간
+      latmin: { type: String, required: [true, 'Latitude min is required'] }, //최소 위도
+      latmax: { type: String, required: [true, 'Latitude max is required'] }, //최대 위도
+      lngmin: { type: String, required: [true, 'Longitude min is required'] }, //최소 경도
+      lngmax: { type: String, required: [true, 'Longitude max is required'] }, //최대 경도
       svRt: { type: String, required: [true, 'AWS S3 save route is required'] }, //S3에 저장된 경로
     },
   ],
