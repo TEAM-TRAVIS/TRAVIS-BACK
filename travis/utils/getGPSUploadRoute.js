@@ -1,5 +1,4 @@
-module.exports = async (req, res, next) => {
-  const { email, date } = await req.body;
+module.exports = async (email, date) => {
   const dateObj = new Date(date);
   const timestamp = dateObj.getTime();
   // S3 업로드 경로

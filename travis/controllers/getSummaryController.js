@@ -1,6 +1,7 @@
 const GPSModel = require('../models/GPSModel');
 const catchAsync = require('../utils/catchAsync');
 const findOneSummary = require('../utils/findOneSummary');
+const gpsController = require('./getGPSController');
 const moment = require('moment');
 
 //AWS S3에서 특정 날짜의 gzip 파일 GET
@@ -72,11 +73,21 @@ exports.deleteOneSummary = catchAsync(async (req, res) => {
   userGPS.records = updatedRecords;
   await userGPS.save();
 
-  const responsePayload = {
-    message: 'Successfully deleted the GPS data for the specific date.',
-  };
+  // Delete the GPS data for the specific date from S3
+  const deletionResult = await gpsController.deleteUserGPS(email, date);
 
-  return res.status(200).json(responsePayload);
+  if (deletionResult.success) {
+    const responsePayload = {
+      message: 'Successfully deleted the GPS data for the specific date.',
+    };
+
+    return res.status(200).json(responsePayload);
+  } else {
+    // Handle the case where the S3 deletion failed
+    return res.status(500).json({
+      message: 'Failed to delete GPS data from S3.',
+    });
+  }
 });
 
 exports.getDailySummary = catchAsync(async (req, res) => {
