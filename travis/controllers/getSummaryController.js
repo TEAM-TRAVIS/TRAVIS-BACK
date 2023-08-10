@@ -1,5 +1,6 @@
 const GPSModel = require('../models/GPSModel');
 const catchAsync = require('../utils/catchAsync');
+const findOneSummary = require('../utils/findOneSummary');
 const moment = require('moment');
 
 //AWS S3에서 특정 날짜의 gzip 파일 GET
@@ -33,24 +34,7 @@ exports.getUserSummary = catchAsync(async (req, res) => {
 });
 
 exports.getOneSummary = catchAsync(async (req, res) => {
-  const { email, date } = req.body; // Extract the information contained in the URL
-
-  // Find the GPS data for the specific user
-  const userGPS = await GPSModel.findOne({ email });
-
-  if (!userGPS) {
-    return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
-  }
-
-  // Find the GPS data for the specific date
-  const oneSummary = userGPS.records.find((record) => {
-    const recordDate = record.date.toISOString().replace('Z', '+00:00');
-    return recordDate === date;
-  });
-
-  if (!oneSummary) {
-    return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
-  }
+  const oneSummary = await findOneSummary(req, res);
 
   const responsePayload = {
     oneSummary,
