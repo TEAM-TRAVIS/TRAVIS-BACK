@@ -21,7 +21,7 @@ router.post('/yearly/:year', getSummaryController.getYearlySummary);
 router.get('/detail', (req, res) => {
   res.render('detail');
 });
-router.post('/detail', getGPSController.getUserGPS);
+router.route('/detail').post(getGPSController.getUserGPS).delete(getGPSController.deleteUserGPS);
 
 // [save] 눌렀을 때
 router.post('/save', saveGPSController.saveGPS);

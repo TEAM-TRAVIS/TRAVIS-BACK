@@ -32,3 +32,13 @@ exports.getUserGPS = catchAsync(async (req, res, next) => {
     gzipFile: gzipFile,
   });
 });
+
+exports.deleteUserGPS = catchAsync(async (req, res, next) => {
+  const uploadRoute = await getGPSUploadRoute(req, res, next); //S3 업로드 경로
+  const deleteObjectData = await s3.deleteObject(uploadRoute).promise();
+  //response
+  return res.status(201).json({
+    message: '해당 날짜의 GPS gzip 파일 DELETE 성공.',
+    deleteObjectData: deleteObjectData,
+  });
+});
