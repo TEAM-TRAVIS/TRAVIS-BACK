@@ -16,9 +16,5 @@ module.exports = async (req, res, next) => {
     return recordDate === date;
   });
 
-  if (!oneSummary) {
-    return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
-  }
-
   return oneSummary;
 };

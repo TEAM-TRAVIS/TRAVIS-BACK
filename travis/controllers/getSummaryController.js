@@ -36,6 +36,10 @@ exports.getUserSummary = catchAsync(async (req, res) => {
 exports.getOneSummary = catchAsync(async (req, res) => {
   const oneSummary = await findOneSummary(req, res);
 
+  if (!oneSummary) {
+    return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
+  }
+
   const responsePayload = {
     oneSummary,
   };
@@ -53,11 +57,7 @@ exports.deleteOneSummary = catchAsync(async (req, res) => {
     return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
   }
 
-  // Find the GPS data for the specific date
-  const oneSummary = userGPS.records.find((record) => {
-    const recordDate = record.date.toISOString().replace('Z', '+00:00');
-    return recordDate === date;
-  });
+  const oneSummary = await findOneSummary(req, res);
 
   if (!oneSummary) {
     return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
