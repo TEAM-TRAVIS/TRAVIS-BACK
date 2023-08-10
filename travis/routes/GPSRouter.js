@@ -7,10 +7,13 @@ const accumulatedGPSController = require('../controllers/accumulatedGPSControlle
 const router = express.Router();
 
 // 마이페이지
-router.get('/summary', (req, res) => {
-  res.render('summary');
-});
-router.post('/summary', getSummaryController.getUserSummary);
+// router.get('/summary', (req, res) => {
+//   res.render('summary');
+// });
+router
+  .route('/summary')
+  .post(getSummaryController.getUserSummary)
+  .get(getSummaryController.getOneSummary);
 
 // 상세페이지
 router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
