@@ -2,6 +2,7 @@ const AWS = require('aws-sdk'); //AWS
 const dotenv = require('dotenv'); //.env 파일 읽는 라이브러리
 const catchAsync = require('../utils/catchAsync');
 const GPSModel = require('../models/GPSModel');
+const getGPSUploadRoute = require('../utils/getGPSUploadRoute');
 
 //.env 파일 load
 dotenv.config();
@@ -23,15 +24,7 @@ const getFileFromS3 = async (uploadRoute) => {
 };
 
 exports.getUserGPS = catchAsync(async (req, res, next) => {
-  const { email, date } = await req.body;
-  const dateObj = new Date(date);
-  const timestamp = dateObj.getTime();
-  console.log(email, timestamp);
-  // S3 업로드 경로
-  const uploadRoute = {
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `${email}/${timestamp}`, // user1/2023080213440503
-  };
+  const uploadRoute = await getGPSUploadRoute(req, res, next); //S3 업로드 경로
   const gzipFile = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
   //response
   return res.status(201).json({
