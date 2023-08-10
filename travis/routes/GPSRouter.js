@@ -13,7 +13,8 @@ const router = express.Router();
 router
   .route('/summary')
   .post(getSummaryController.getUserSummary)
-  .get(getSummaryController.getOneSummary);
+  .get(getSummaryController.getOneSummary)
+  .delete(getSummaryController.deleteOneSummary);
 
 // 상세페이지
 router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
