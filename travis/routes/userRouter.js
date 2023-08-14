@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -9,18 +10,18 @@ router.route('/').get(userController.getAllUsers);
 router.get('/signup', (req, res) => {
   res.render('signup');
 });
-router.post('/signup', userController.signup);
+router.post('/signup', authController.signup);
 
 // After email verification
-router.get('/verify-email/:token', userController.verifyEmail);
+router.get('/verify-email/:token', authController.verifyEmail);
 
 // Login
 router.get('/login', (req, res) => {
   res.render('login');
 });
-router.post('/login', userController.login);
+router.post('/login', authController.login);
 
 // Logout
-router.get('/logout', userController.logout);
+router.get('/logout', authController.logout);
 
 module.exports = router;
