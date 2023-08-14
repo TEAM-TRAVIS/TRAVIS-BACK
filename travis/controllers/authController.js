@@ -5,6 +5,12 @@ const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/sendEmail');
 const AppError = require('../utils/appError');
 
+const signToken = (id, expiresIn) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: expiresIn,
+  });
+};
+
 function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
@@ -28,7 +34,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     return res.status(400).json({ error: 'Email already exists' });
   }
 
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' }); // 이메일 인증용 토큰 발급
+  const token = signToken(email, '1d');
 
   const user = await UserModel.create({
     name,
@@ -69,7 +75,7 @@ exports.login = (req, res, next) => {
       next(new AppError('Login failed', 401));
       return res.status(401).json({ error: 'Login failed' });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = signToken(user._id, '1h');
 
     return res.json({ user: user, token });
   })(req, res, next);
