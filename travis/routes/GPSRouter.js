@@ -10,9 +10,13 @@ const router = express.Router();
 // router.get('/summary', (req, res) => {
 //   res.render('summary');
 // });
+// router.post('/summary/:email', getSummaryController.updateSummary);
+
+router.route('/summary/all').post(getSummaryController.getUserSummary);
+
 router
   .route('/summary')
-  .post(getSummaryController.getUserSummary)
+  .post(getSummaryController.updateSummary)
   .get(getSummaryController.getOneSummary)
   .delete(getSummaryController.deleteOneSummary);
 

@@ -36,7 +36,7 @@ const uploadToS3 = async (uploadRoute, file) => {
 };
 
 //몽고DB 업로드
-const saveToMongo = async (email, date, dist, time, title, content, svRt) => {
+const saveToMongo = async (email, date, dist, time, title, content, isPublic, svRt) => {
   try {
     let GPSDB = await GPSModel.findOne({ email });
     const distNumber = Number(dist);
@@ -57,6 +57,7 @@ const saveToMongo = async (email, date, dist, time, title, content, svRt) => {
       time: timeNumber,
       title,
       content,
+      isPublic,
       svRt,
     }); // 새 레코드 push
 
@@ -69,7 +70,7 @@ const saveToMongo = async (email, date, dist, time, title, content, svRt) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    const { email, dist, time, title, content, file } = req.body;
+    const { email, dist, time, title, content, isPublic, file } = req.body;
     const date = Date.now();
 
     // S3 업로드 경로
@@ -82,7 +83,7 @@ exports.saveGPS = async (req, res) => {
     const uploadedURL = await uploadToS3(uploadRoute, file); //업로드 후 업로드 경로를 변수에 저장.
 
     //몽고DB 업로드
-    saveToMongo(email, date, dist, time, title, content, uploadRoute.Key);
+    saveToMongo(email, date, dist, time, title, content, isPublic, uploadRoute.Key);
 
     //response
     return res.status(201).json({

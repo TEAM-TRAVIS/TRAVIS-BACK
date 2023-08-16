@@ -4,7 +4,6 @@ const findOneSummary = require('../utils/findOneSummary');
 const gpsController = require('./getGPSController');
 const moment = require('moment');
 
-//AWS S3에서 특정 날짜의 gzip 파일 GET
 exports.getUserSummary = catchAsync(async (req, res) => {
   const { email } = req.body; //url에 포함된 정보 추츨
 
@@ -88,6 +87,43 @@ exports.deleteOneSummary = catchAsync(async (req, res) => {
       message: 'Failed to delete GPS data from S3.',
     });
   }
+});
+
+exports.updateSummary = catchAsync(async (req, res) => {
+  const { email, date, title, content, isPublic } = req.body; // Extract the information contained in the URL
+
+  // Find the GPS data for the specific user
+  const userGPS = await GPSModel.findOne({ email });
+
+  if (!userGPS) {
+    return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
+  }
+
+  const oneSummary = await findOneSummary(req, res);
+
+  if (!oneSummary) {
+    return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
+  }
+
+  // Update the GPS data for the specific date
+  const updatedRecords = userGPS.records.map((record) => {
+    const recordDate = record.date.toISOString().replace('Z', '+00:00');
+    if (recordDate === date) {
+      record.title = title;
+      record.content = content;
+      record.isPublic = isPublic;
+    }
+    return record;
+  });
+
+  userGPS.records = updatedRecords;
+  await userGPS.save();
+
+  const responsePayload = {
+    message: 'Successfully updated the GPS data for the specific date.',
+  };
+
+  return res.status(200).json(responsePayload);
 });
 
 exports.getDailySummary = catchAsync(async (req, res) => {
