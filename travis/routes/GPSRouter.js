@@ -16,9 +16,10 @@ router.route('/summary/all').post(getSummaryController.getUserSummary);
 
 router
   .route('/summary')
-  .post(getSummaryController.updateSummary)
-  .get(getSummaryController.getOneSummary)
+  .post(getSummaryController.getOneSummary)
   .delete(getSummaryController.deleteOneSummary);
+
+router.route('/summary/update').post(getSummaryController.updateSummary);
 
 // 상세페이지
 router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
