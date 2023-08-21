@@ -121,6 +121,7 @@ exports.updateSummary = catchAsync(async (req, res) => {
 
   const responsePayload = {
     message: 'Successfully updated the GPS data for the specific date.',
+    data: updatedRecords,
   };
 
   return res.status(200).json(responsePayload);
