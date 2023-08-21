@@ -10,17 +10,15 @@ const bodyParser = require('body-parser');
 // 로그인: session, passport
 const session = require('express-session');
 const passport = require('passport');
-const passportConfig = require('./config/passport');
 const swaggerFile = require('./public/common/swagger-output.json');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Router 미들웨어 추가
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
 const GPSRouter = require('./routes/GPSRouter');
+const feedRouter = require('./routes/feedRouter');
 
-const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
@@ -56,6 +54,7 @@ app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/main', mainRouter);
 app.use('/gps', GPSRouter);
+app.use('/feed', feedRouter);
 
 // Routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
