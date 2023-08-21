@@ -63,16 +63,16 @@ exports.deleteOneSummary = catchAsync(async (req, res) => {
     return res.status(404).json({ message: 'There is no saved GPS data for that date.' });
   }
 
-  // Delete the GPS data for the specific date
-  const updatedRecords = userGPS.records.filter((record) => {
+  userGPS.records = userGPS.records.filter((record) => {
     const recordDate = record.date.toISOString().replace('Z', '+00:00');
     return recordDate !== date;
   });
 
-  userGPS.records = updatedRecords;
+  userGPS.to_dist -= oneSummary.dist;
+  userGPS.to_time -= oneSummary.time;
+
   await userGPS.save();
 
-  // Delete the GPS data for the specific date from S3
   const deletionResult = await gpsController.deleteUserGPS(email, date);
 
   if (deletionResult.success) {
@@ -81,12 +81,10 @@ exports.deleteOneSummary = catchAsync(async (req, res) => {
     };
 
     return res.status(200).json(responsePayload);
-  } else {
-    // Handle the case where the S3 deletion failed
-    return res.status(500).json({
-      message: 'Failed to delete GPS data from S3.',
-    });
   }
+  return res.status(500).json({
+    message: 'Failed to delete GPS data from S3.',
+  });
 });
 
 exports.updateSummary = catchAsync(async (req, res) => {
@@ -115,7 +113,6 @@ exports.updateSummary = catchAsync(async (req, res) => {
     }
     return record;
   });
-
   userGPS.records = updatedRecords;
   await userGPS.save();
 
