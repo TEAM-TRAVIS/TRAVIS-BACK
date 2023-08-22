@@ -4,6 +4,38 @@ const findOneSummary = require('../utils/findOneSummary');
 const gpsController = require('./getGPSController');
 const moment = require('moment');
 
+const aggregateSummary = (records, groupingCallback) => {
+  const summary = {};
+
+  for (const record of records) {
+    const groupKey = groupingCallback(record.date);
+
+    if (!summary[groupKey]) {
+      summary[groupKey] = {
+        totalDist: 0,
+        totalTime: 0,
+        records: [],
+      };
+    }
+
+    summary[groupKey].totalDist += record.dist;
+    summary[groupKey].totalTime += record.time;
+    summary[groupKey].records.push({
+      date: record.date,
+      dist: record.dist,
+      time: record.time,
+      title: record.title,
+      content: record.content,
+      city1: record.city1,
+      city2: record.city2,
+      city3: record.city3,
+      svRt: record.svRt,
+    });
+  }
+
+  return summary;
+};
+
 exports.getUserSummary = catchAsync(async (req, res) => {
   const { email } = req.body; //url에 포함된 정보 추츨
 
@@ -119,41 +151,17 @@ exports.updateSummary = catchAsync(async (req, res) => {
 });
 
 exports.getDailySummary = catchAsync(async (req, res) => {
-  const { email } = req.body; // Extract the information contained in the URL
-
-  // Find the GPS data for the specific user
+  const { email } = req.body;
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
     return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
   }
 
-  // Aggregate daily summary data of the user
-  const dailySummary = {};
-
-  for (const record of userGPS.records) {
-    const dateKey = record.date.toISOString().split('T')[0];
-    if (!dailySummary[dateKey]) {
-      dailySummary[dateKey] = {
-        totalDist: 0,
-        totalTime: 0,
-        records: [],
-      };
-    }
-    dailySummary[dateKey].totalDist += record.dist;
-    dailySummary[dateKey].totalTime += record.time;
-    dailySummary[dateKey].records.push({
-      date: record.date,
-      dist: record.dist,
-      time: record.time,
-      title: record.title,
-      content: record.content,
-      city1: record.city1,
-      city2: record.city2,
-      city3: record.city3,
-      svRt: record.svRt,
-    });
-  }
+  const dailySummary = aggregateSummary(
+    userGPS.records,
+    (date) => date.toISOString().split('T')[0],
+  );
 
   const responsePayload = {
     dailySummary,
@@ -163,43 +171,18 @@ exports.getDailySummary = catchAsync(async (req, res) => {
 });
 
 exports.getWeeklySummary = catchAsync(async (req, res) => {
-  const { email } = req.body; // Extract the information contained in the URL
-
-  // Find the GPS data for the specific user
+  const { email } = req.body;
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
     return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
   }
 
-  // Aggregate weekly summary data of the user
-  const weeklySummary = {};
-
-  for (const record of userGPS.records) {
-    const week = moment(record.date).isoWeek();
-    const year = record.date.getFullYear();
-    const weekKey = `${year}-W${week}`;
-    if (!weeklySummary[weekKey]) {
-      weeklySummary[weekKey] = {
-        totalDist: 0,
-        totalTime: 0,
-        records: [],
-      };
-    }
-    weeklySummary[weekKey].totalDist += record.dist;
-    weeklySummary[weekKey].totalTime += record.time;
-    weeklySummary[weekKey].records.push({
-      date: record.date,
-      dist: record.dist,
-      time: record.time,
-      title: record.title,
-      content: record.content,
-      city1: record.city1,
-      city2: record.city2,
-      city3: record.city3,
-      svRt: record.svRt,
-    });
-  }
+  const weeklySummary = aggregateSummary(userGPS.records, (date) => {
+    const week = moment(date).isoWeek();
+    const year = date.getFullYear();
+    return `${year}-W${week}`;
+  });
 
   const responsePayload = {
     weeklySummary,
@@ -209,43 +192,18 @@ exports.getWeeklySummary = catchAsync(async (req, res) => {
 });
 
 exports.getMonthlySummary = catchAsync(async (req, res) => {
-  const { email } = req.body; // Extract the information contained in the URL
-
-  // Find the GPS data for the specific user
+  const { email } = req.body;
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
     return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
   }
 
-  // Aggregate monthly summary data of the user
-  const monthlySummary = {};
-
-  for (const record of userGPS.records) {
-    const year = record.date.getFullYear();
-    const month = record.date.getMonth() + 1;
-    const monthKey = `${year}-${month}`;
-    if (!monthlySummary[monthKey]) {
-      monthlySummary[monthKey] = {
-        totalDist: 0,
-        totalTime: 0,
-        records: [],
-      };
-    }
-    monthlySummary[monthKey].totalDist += record.dist;
-    monthlySummary[monthKey].totalTime += record.time;
-    monthlySummary[monthKey].records.push({
-      date: record.date,
-      dist: record.dist,
-      time: record.time,
-      title: record.title,
-      content: record.content,
-      city1: record.city1,
-      city2: record.city2,
-      city3: record.city3,
-      svRt: record.svRt,
-    });
-  }
+  const monthlySummary = aggregateSummary(userGPS.records, (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    return `${year}-${month}`;
+  });
 
   const responsePayload = {
     monthlySummary,
@@ -255,41 +213,14 @@ exports.getMonthlySummary = catchAsync(async (req, res) => {
 });
 
 exports.getYearlySummary = catchAsync(async (req, res) => {
-  const { email } = req.body; // Extract the information contained in the URL
-
-  // Find the GPS data for the specific user
+  const { email } = req.body;
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
     return res.status(404).json({ message: 'There is no saved GPS data for that user.' });
   }
 
-  // Aggregate yearly summary data of the user
-  const yearlySummary = {};
-
-  for (const record of userGPS.records) {
-    const year = record.date.getFullYear();
-    if (!yearlySummary[year]) {
-      yearlySummary[year] = {
-        totalDist: 0,
-        totalTime: 0,
-        records: [],
-      };
-    }
-    yearlySummary[year].totalDist += record.dist;
-    yearlySummary[year].totalTime += record.time;
-    yearlySummary[year].records.push({
-      date: record.date,
-      dist: record.dist,
-      time: record.time,
-      title: record.title,
-      content: record.content,
-      city1: record.city1,
-      city2: record.city2,
-      city3: record.city3,
-      svRt: record.svRt,
-    });
-  }
+  const yearlySummary = aggregateSummary(userGPS.records, (date) => date.getFullYear());
 
   const responsePayload = {
     yearlySummary,
