@@ -39,6 +39,7 @@ const aggregateSummary = (records, groupingCallback) => {
 const getSummaryByTime = async (req, res, timeUnit) => {
   const { email } = req.body;
   const { year, month, day, week } = req.params;
+  const { page = 1, limit = 10 } = req.query; // Default page to 1 and limit to 10
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
@@ -62,7 +63,12 @@ const getSummaryByTime = async (req, res, timeUnit) => {
     return moment.utc(recordDate).isSame(selectedMoment, timeUnit);
   });
 
-  const summary = aggregateSummary(filteredRecords, (date) => {
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const paginatedRecords = filteredRecords.slice(startIndex, endIndex);
+
+  const summary = aggregateSummary(paginatedRecords, (date) => {
     if (timeUnit === 'day') {
       return date.toISOString().split('T')[0];
     } else if (timeUnit === 'week') {
@@ -80,6 +86,8 @@ const getSummaryByTime = async (req, res, timeUnit) => {
 
   const responsePayload = {
     [`${timeUnit}lySummary`]: summary,
+    currentPage: page,
+    totalPages: Math.ceil(filteredRecords.length / limit),
   };
 
   return res.status(200).json(responsePayload);
