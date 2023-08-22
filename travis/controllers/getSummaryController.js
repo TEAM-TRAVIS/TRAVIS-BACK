@@ -15,13 +15,7 @@ exports.getUserSummary = catchAsync(async (req, res) => {
   }
 
   // 유저의 모든 GPS summary 데이터 추출
-  const userData = userGPS.records.map(({ date, dist, time, title, content }) => ({
-    date,
-    dist,
-    time,
-    title,
-    content,
-  }));
+  const userData = userGPS.records;
 
   // to_dist, to_time 데이터도 포함하여 응답으로 보냄
   const responsePayload = {
@@ -154,6 +148,10 @@ exports.getDailySummary = catchAsync(async (req, res) => {
       time: record.time,
       title: record.title,
       content: record.content,
+      city1: record.city1,
+      city2: record.city2,
+      city3: record.city3,
+      svRt: record.svRt,
     });
   }
 
@@ -196,6 +194,10 @@ exports.getWeeklySummary = catchAsync(async (req, res) => {
       time: record.time,
       title: record.title,
       content: record.content,
+      city1: record.city1,
+      city2: record.city2,
+      city3: record.city3,
+      svRt: record.svRt,
     });
   }
 
@@ -238,6 +240,10 @@ exports.getMonthlySummary = catchAsync(async (req, res) => {
       time: record.time,
       title: record.title,
       content: record.content,
+      city1: record.city1,
+      city2: record.city2,
+      city3: record.city3,
+      svRt: record.svRt,
     });
   }
 
@@ -278,6 +284,10 @@ exports.getYearlySummary = catchAsync(async (req, res) => {
       time: record.time,
       title: record.title,
       content: record.content,
+      city1: record.city1,
+      city2: record.city2,
+      city3: record.city3,
+      svRt: record.svRt,
     });
   }
 
