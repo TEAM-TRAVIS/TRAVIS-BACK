@@ -19,11 +19,9 @@ exports.getAllPublicSummary = catchAsync(async (req, res) => {
   summaries = summaries.flat();
   summaries = summaries.filter((summary) => summary.isPublic === true);
 
-  // Calculate startIndex and endIndex for pagination
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  // Get summaries for the current page
   const paginatedSummaries = summaries.slice(startIndex, endIndex);
 
   const responsePayload = {
