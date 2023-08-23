@@ -5,7 +5,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.route('/all').get(userController.getAllUsers);
-router.route('/:email').get(userController.getUser);
+router.route('/').post(userController.getUser);
 
 // Sign up
 router.get('/signup', (req, res) => {

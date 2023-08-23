@@ -22,8 +22,9 @@ exports.getAllUsers = catchAsync(async (req, res) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  const { email } = req.params;
-  const user = await UserModel.findOne({ email: email });
+  const { email } = req.body;
+  const user = await UserModel.findOne({ email });
+
   if (!user) {
     return next(new AppError('No user found with that email', 404));
   }

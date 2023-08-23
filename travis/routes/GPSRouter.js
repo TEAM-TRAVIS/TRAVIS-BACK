@@ -16,9 +16,10 @@ router.route('/summary/all').post(getSummaryController.getUserSummary);
 
 router
   .route('/summary')
-  .post(getSummaryController.updateSummary)
-  .get(getSummaryController.getOneSummary)
+  .post(getSummaryController.getOneSummary)
   .delete(getSummaryController.deleteOneSummary);
+
+router.route('/summary/update').post(getSummaryController.updateSummary);
 
 // 상세페이지
 router.post('/daily/:year/:month/:day', getSummaryController.getDailySummary);
@@ -35,6 +36,6 @@ router.route('/detail').post(getGPSController.getUserGPS).delete(getGPSControlle
 router.post('/save', saveGPSController.saveGPS);
 
 // x일 동안의 GPS 데이터 합침
-router.get('/accumulated/:email', accumulatedGPSController.sendUserGpsSummary);
+router.post('/accumulated', accumulatedGPSController.sendUserGpsSummary);
 
 module.exports = router;
