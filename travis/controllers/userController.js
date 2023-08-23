@@ -4,14 +4,21 @@ const AppError = require('../utils/appError');
 
 exports.getAllUsers = catchAsync(async (req, res) => {
   const users = await UserModel.find();
-  // SEND RESPONSE
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const paginatedUsers = users.slice(startIndex, endIndex);
+
+  const responsePayload = {
+    users: paginatedUsers,
+    currentPage: page,
+    totalPages: Math.ceil(users.length / limit),
+  };
+
+  return res.status(200).json(responsePayload);
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {

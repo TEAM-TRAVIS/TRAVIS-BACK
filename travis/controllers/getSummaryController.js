@@ -94,8 +94,9 @@ const getSummaryByTime = async (req, res, timeUnit) => {
 };
 
 exports.getUserSummary = catchAsync(async (req, res) => {
-  const { email } = req.body; //url에 포함된 정보 추츨
-  const { page = 1, limit = 10 } = req.query; // Default page to 1 and limit to 10
+  const { email } = req.body;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
 
   // Find the GPS data for the specific user
   const userGPS = await GPSModel.findOne({ email });
