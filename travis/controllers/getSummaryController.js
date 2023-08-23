@@ -95,6 +95,7 @@ const getSummaryByTime = async (req, res, timeUnit) => {
 
 exports.getUserSummary = catchAsync(async (req, res) => {
   const { email } = req.body;
+  const { city1, city2, city3 } = req.query;
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
@@ -108,8 +109,20 @@ exports.getUserSummary = catchAsync(async (req, res) => {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
+  const filteredRecords = userGPS.records.filter((record) => {
+    if (
+      (city1 && record.city1 !== city1) ||
+      (city2 && record.city2 !== city2) ||
+      (city3 && record.city3 !== city3)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  console.log(filteredRecords);
   // 유저의 모든 GPS summary 데이터 추출
-  const userData = userGPS.records.slice(startIndex, endIndex);
+  const userData = filteredRecords.slice(startIndex, endIndex);
 
   // to_dist, to_time 데이터도 포함하여 응답으로 보냄
   const responsePayload = {
@@ -117,7 +130,7 @@ exports.getUserSummary = catchAsync(async (req, res) => {
     to_time: userGPS.to_time,
     userData: userData,
     currentPage: page,
-    totalPages: Math.ceil(userGPS.records.length / limit),
+    totalPages: Math.ceil(filteredRecords.length / limit),
   };
 
   return res.status(200).json(responsePayload);
