@@ -39,7 +39,7 @@ const aggregateSummary = (records, groupingCallback) => {
 const getSummaryByTime = async (req, res, timeUnit) => {
   const { email } = req.body;
   const { year, month, day, week } = req.params;
-  const { page = 1, limit = 10 } = req.query; // Default page to 1 and limit to 10
+  const { page = 1, limit = 10, city1, city2, city3 } = req.query; // Default page to 1 and limit to 10
   const userGPS = await GPSModel.findOne({ email });
 
   if (!userGPS) {
@@ -63,10 +63,21 @@ const getSummaryByTime = async (req, res, timeUnit) => {
     return moment.utc(recordDate).isSame(selectedMoment, timeUnit);
   });
 
+  const cityFilteredRecords = filteredRecords.filter((record) => {
+    if (
+      (city1 && record.city1 !== city1) ||
+      (city2 && record.city2 !== city2) ||
+      (city3 && record.city3 !== city3)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  const paginatedRecords = filteredRecords.slice(startIndex, endIndex);
+  const paginatedRecords = cityFilteredRecords.slice(startIndex, endIndex);
 
   const summary = aggregateSummary(paginatedRecords, (date) => {
     if (timeUnit === 'day') {
@@ -87,7 +98,7 @@ const getSummaryByTime = async (req, res, timeUnit) => {
   const responsePayload = {
     [`${timeUnit}lySummary`]: summary,
     currentPage: page,
-    totalPages: Math.ceil(filteredRecords.length / limit),
+    totalPages: Math.ceil(cityFilteredRecords.length / limit),
   };
 
   return res.status(200).json(responsePayload);
@@ -95,6 +106,7 @@ const getSummaryByTime = async (req, res, timeUnit) => {
 
 exports.getUserSummary = catchAsync(async (req, res) => {
   const { email } = req.body;
+  const { city1, city2, city3 } = req.query;
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
@@ -108,8 +120,19 @@ exports.getUserSummary = catchAsync(async (req, res) => {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
+  const filteredRecords = userGPS.records.filter((record) => {
+    if (
+      (city1 && record.city1 !== city1) ||
+      (city2 && record.city2 !== city2) ||
+      (city3 && record.city3 !== city3)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   // 유저의 모든 GPS summary 데이터 추출
-  const userData = userGPS.records.slice(startIndex, endIndex);
+  const userData = filteredRecords.slice(startIndex, endIndex);
 
   // to_dist, to_time 데이터도 포함하여 응답으로 보냄
   const responsePayload = {
@@ -117,7 +140,7 @@ exports.getUserSummary = catchAsync(async (req, res) => {
     to_time: userGPS.to_time,
     userData: userData,
     currentPage: page,
-    totalPages: Math.ceil(userGPS.records.length / limit),
+    totalPages: Math.ceil(filteredRecords.length / limit),
   };
 
   return res.status(200).json(responsePayload);
