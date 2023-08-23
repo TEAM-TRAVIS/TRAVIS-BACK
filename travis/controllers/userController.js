@@ -13,3 +13,18 @@ exports.getAllUsers = catchAsync(async (req, res) => {
     },
   });
 });
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  const { email } = req.params;
+  const user = await UserModel.findOne({ email: email });
+  if (!user) {
+    return next(new AppError('No user found with that email', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
+});
