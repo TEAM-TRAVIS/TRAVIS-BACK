@@ -95,6 +95,7 @@ const getSummaryByTime = async (req, res, timeUnit) => {
 
 exports.getUserSummary = catchAsync(async (req, res) => {
   const { email } = req.body; //url에 포함된 정보 추츨
+  const { page = 1, limit = 10 } = req.query; // Default page to 1 and limit to 10
 
   // Find the GPS data for the specific user
   const userGPS = await GPSModel.findOne({ email });
@@ -103,14 +104,19 @@ exports.getUserSummary = catchAsync(async (req, res) => {
     return res.status(404).json({ message: '해당 유저로 저장된 GPS 데이터가 없습니다.' });
   }
 
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
   // 유저의 모든 GPS summary 데이터 추출
-  const userData = userGPS.records;
+  const userData = userGPS.records.slice(startIndex, endIndex);
 
   // to_dist, to_time 데이터도 포함하여 응답으로 보냄
   const responsePayload = {
     to_dist: userGPS.to_dist,
     to_time: userGPS.to_time,
     userData: userData,
+    currentPage: page,
+    totalPages: Math.ceil(userGPS.records.length / limit),
   };
 
   return res.status(200).json(responsePayload);
