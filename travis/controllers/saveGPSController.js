@@ -36,45 +36,27 @@ const uploadToS3 = async (uploadRoute, file) => {
 };
 
 //몽고DB 업로드
-const saveToMongo = async (
-  email,
-  date,
-  dist,
-  time,
-  title,
-  content,
-  isPublic,
-  city1,
-  city2,
-  city3,
-  svRt,
-) => {
+const saveToMongo = async (record) => {
   try {
-    let GPSDB = await GPSModel.findOne({ email });
-    const distNumber = Number(dist);
-    const timeNumber = Number(time);
+    let GPSDB = await GPSModel.findOne({ email: record.email });
+    const distNumber = Number(record.dist);
+    const timeNumber = Number(record.time);
 
     // 해당 id로 이전에 생성된 GPS 문서가 없는 경우
     if (!GPSDB) {
-      GPSDB = new GPSModel({ email, to_dist: distNumber, to_time: timeNumber, records: [] });
+      GPSDB = new GPSModel({
+        email: record.email,
+        to_dist: distNumber,
+        to_time: timeNumber,
+        records: [],
+      });
     } else {
       // 총 거리, 총 시간 갱신
       GPSDB.to_dist += distNumber;
       GPSDB.to_time += timeNumber;
     }
 
-    GPSDB.records.push({
-      date,
-      dist: distNumber,
-      time: timeNumber,
-      title,
-      content,
-      isPublic,
-      city1,
-      city2,
-      city3,
-      svRt,
-    }); // 새 레코드 push
+    GPSDB.records.push(record); // 새 레코드 push
 
     await GPSDB.save(); // 저장
     console.log('GPS 데이터 업로드 성공!');
@@ -85,32 +67,22 @@ const saveToMongo = async (
 
 exports.saveGPS = async (req, res) => {
   try {
-    const { email, dist, time, title, content, isPublic, city1, city2, city3, file } = req.body;
-    const date = Date.now();
+    // const { email, dist, time, title, content, isPublic, city1, city2, city3, file } = req.body;
+    const record = req.body;
+    record.date = Date.now();
 
     // S3 업로드 경로
     const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${email}/${date}`, // seung@eon.kim/2023080213440503
+      Key: `${record.email}/${record.date}`, // seung@eon.kim/2023080213440503
     };
 
     //S3에 file 업로드
-    const uploadedURL = await uploadToS3(uploadRoute, file); //업로드 후 업로드 경로를 변수에 저장.
+    const uploadedURL = await uploadToS3(uploadRoute, record.file); //업로드 후 업로드 경로를 변수에 저장.
+    record.svRt = uploadRoute.Key;
 
     //몽고DB 업로드
-    saveToMongo(
-      email,
-      date,
-      dist,
-      time,
-      title,
-      content,
-      isPublic,
-      city1,
-      city2,
-      city3,
-      uploadRoute.Key,
-    );
+    saveToMongo(record);
 
     //response
     return res.status(201).json({
