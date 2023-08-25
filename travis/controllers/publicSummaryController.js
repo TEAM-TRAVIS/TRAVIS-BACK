@@ -1,14 +1,15 @@
 const GPSModel = require('../models/GPSModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-exports.getAllPublicSummary = catchAsync(async (req, res) => {
+exports.getAllPublicSummary = catchAsync(async (req, res, next) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
 
   const users = await GPSModel.find();
 
   if (!users) {
-    return res.status(404).json({ message: 'There is no public GPS data.' });
+    return next(new AppError('There is no saved GPS data for that date.', 404));
   }
 
   let summaries = users.map((user) => {
