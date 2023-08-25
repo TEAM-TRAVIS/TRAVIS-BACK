@@ -27,6 +27,9 @@ const GPSSchema = new mongoose.Schema({
       time: { type: Number, required: [true, 'Duration time is required'] }, //총 이동시간
       title: String,
       content: String,
+      city1: String,
+      city2: String,
+      city3: String,
       isPublic: { type: Boolean, default: false }, //공개 여부
       svRt: { type: String, required: [true, 'AWS S3 save route is required'] }, //S3에 저장된 경로
     },

@@ -28,7 +28,7 @@ const getGPSDataFromS3 = async (fileKey) => {
 // 필터링된 GPS 데이터 합쳐서 클라이언트로 보냄
 exports.sendUserGpsSummary = async (req, res) => {
   try {
-    const { email } = req.params;
+    const { email } = req.body;
     const { days } = req.query;
     const currentDate = new Date();
     if (days) currentDate.setDate(currentDate.getDate() - days);
