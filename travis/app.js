@@ -70,7 +70,7 @@ app.get(
 
 // catch 404 and forward to error handler
 app.all('*', (req, res, next) => {
-  next(createError(404, 'Not Found'));
+  next(createError(404, 'Not Found\n', 'req: ', req, '\nres: ', res));
 });
 // error handler
 app.use(globalErrorHandler);
