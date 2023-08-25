@@ -1,25 +1,8 @@
 const AWS = require('../utils/AWSConfig');
 const catchAsync = require('../utils/catchAsync');
+const uploadToS3 = require('../utils/uploadToS3');
 
 const s3 = new AWS.S3();
-
-//s3에 파일 업로드
-const uploadToS3 = async (uploadRoute, bufferFile) => {
-  //담기
-  const uploadParams = {
-    Bucket: uploadRoute.Bucket,
-    Key: uploadRoute.Key,
-    Body: bufferFile,
-  };
-  try {
-    const data = await s3.upload(uploadParams).promise();
-    console.log('S3에 파일 업로드 성공!: ', data.Location);
-    return data.Location; //저장된 경로 return
-  } catch (err) {
-    console.error('S3 업로드 중 에러 발생: ', err);
-    return null;
-  }
-};
 
 exports.save = async (req, res) => {
   try {
@@ -33,7 +16,9 @@ exports.save = async (req, res) => {
     };
 
     //S3에 file 업로드
-    await uploadToS3(uploadRoute, image); //업로드 후 업로드 경로를 변수에 저장.
+    await uploadToS3(uploadRoute, image, true); //업로드 후 업로드 경로를 변수에 저장.
+
+    console.log('이미지 S3에 업로드 성공!');
 
     //response
     return res.status(201).json({
@@ -46,7 +31,6 @@ exports.save = async (req, res) => {
       .json({ message: 'imgController.js의 save()에서 오류가 발생했습니다.', ' error내용': error });
   }
 };
-
 
 // S3에 업로드된 파일 조회
 const getFileFromS3 = async (uploadRoute) => {
