@@ -18,6 +18,7 @@ const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
 const GPSRouter = require('./routes/GPSRouter');
 const feedRouter = require('./routes/feedRouter');
+const imgRouter = require('./routes/imgRouter');
 
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -55,6 +56,7 @@ app.use('/user', userRouter);
 app.use('/main', mainRouter);
 app.use('/gps', GPSRouter);
 app.use('/feed', feedRouter);
+app.use('/img', imgRouter);
 
 // Routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
