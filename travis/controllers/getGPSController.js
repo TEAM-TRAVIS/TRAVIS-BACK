@@ -1,16 +1,9 @@
 const AWS = require('../utils/AWSConfig');
 const catchAsync = require('../utils/catchAsync');
-const GPSModel = require('../models/GPSModel');
 const getGPSUploadRoute = require('../utils/getGPSUploadRoute');
+const getFileFromS3 = require('../utils/getFileFromS3');
 
 const s3 = new AWS.S3();
-
-// S3에 업로드된 파일 조회
-const getFileFromS3 = async (uploadRoute) => {
-  const getObjectData = await s3.getObject(uploadRoute).promise();
-  const file = getObjectData.Body.toString('utf-8'); //인코딩
-  return file;
-};
 
 exports.getUserGPS = catchAsync(async (req, res, next) => {
   const { email, date } = req.body; //url에 포함된 정보 추츨

@@ -1,8 +1,6 @@
-const AWS = require('../utils/AWSConfig');
 const catchAsync = require('../utils/catchAsync');
 const uploadToS3 = require('../utils/uploadToS3');
-
-const s3 = new AWS.S3();
+const getFileFromS3 = require('../utils/getFileFromS3');
 
 exports.save = async (req, res) => {
   try {
@@ -32,20 +30,13 @@ exports.save = async (req, res) => {
   }
 };
 
-// S3에 업로드된 파일 조회
-const getFileFromS3 = async (uploadRoute) => {
-  const getObjectData = await s3.getObject(uploadRoute).promise();
-  const file = getObjectData.Body;
-  return file;
-};
-
 exports.getImage = catchAsync(async (req, res, next) => {
   const { email } = req.body; //url에 포함된 정보 추츨
   const uploadRoute = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
     Key: `${email}/profile`, // user1@mgmail.com/profile
   };
-  const gzipFile = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
+  const gzipFile = await getFileFromS3(uploadRoute, true); //해당 S3 ROUTE로 파일 다시 GET.
   //response
   return res.status(201).json({
     message: '프로필 사진 get 성공.',
