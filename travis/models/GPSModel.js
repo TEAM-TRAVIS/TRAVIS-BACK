@@ -19,9 +19,9 @@ const GPSSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now(), required: [true, 'Record date is required'] }, //측정일
       dist: {
         type: Number,
-        get: (value) => Number(value.toFixed(1)),
+        get: (value) => Number(value).toFixed(1),
 
-        set: (value) => Number(value.toFixed(1)),
+        set: (value) => Number(value).toFixed(1),
         required: [true, 'Distance is required'],
       }, //총 이동거리
       time: { type: Number, required: [true, 'Duration time is required'] }, //총 이동시간
