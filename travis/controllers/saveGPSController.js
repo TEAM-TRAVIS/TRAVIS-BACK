@@ -1,39 +1,6 @@
-const AWS = require('aws-sdk'); //AWS
-const dotenv = require('dotenv'); //.env 파일 읽는 라이브러리
+const uploadToS3 = require('../utils/uploadToS3');
 const GPSModel = require('../models/GPSModel');
-
-//.env 파일 load
-dotenv.config();
-
-// AWS S3 설정
-AWS.config.update({
-  accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
-  region: process.env.AWS_S3_REGION,
-});
-
-const s3 = new AWS.S3();
-
-//s3에 파일 업로드
-const uploadToS3 = async (uploadRoute, file) => {
-  //buffer 타입으로 변경
-  const bufferFile = Buffer.from(file);
-
-  //담기
-  const uploadParams = {
-    Bucket: uploadRoute.Bucket,
-    Key: uploadRoute.Key,
-    Body: bufferFile,
-  };
-  try {
-    const data = await s3.upload(uploadParams).promise();
-    console.log('S3에 파일 업로드 성공!: ', data.Location);
-    return data.Location; //저장된 경로 return
-  } catch (err) {
-    console.error('S3 업로드 중 에러 발생: ', err);
-    return null;
-  }
-};
+require("aws-sdk/lib/maintenance_mode_message").suppress = true;
 
 //몽고DB 업로드
 const saveToMongo = async (record) => {
@@ -78,7 +45,7 @@ exports.saveGPS = async (req, res) => {
     };
 
     //S3에 file 업로드
-    const uploadedURL = await uploadToS3(uploadRoute, record.file); //업로드 후 업로드 경로를 변수에 저장.
+    const uploadedURL = await uploadToS3(uploadRoute, record.file, false); //업로드 후 업로드 경로를 변수에 저장.
     record.svRt = uploadRoute.Key;
 
     //몽고DB 업로드
