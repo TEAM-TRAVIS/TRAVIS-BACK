@@ -1,6 +1,6 @@
 const express = require('express');
-const imgController = require('../controllers/imgController');
 const multer = require('multer'); //이미지 request 처리
+const imgController = require('../controllers/imgController');
 
 const router = express.Router();
 
