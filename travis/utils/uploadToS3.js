@@ -19,7 +19,7 @@ const uploadToS3 = async (uploadRoute, file, isImage) => {
     return data.Location; //저장된 경로 return
   } catch (err) {
     console.error('S3 업로드 중 에러 발생: ', err);
-    return null;
+    return err;
   }
 };
 
