@@ -8,11 +8,17 @@ const s3 = new AWS.S3();
 exports.getUserGPS = catchAsync(async (req, res, next) => {
   const { email, date } = req.body; //url에 포함된 정보 추츨
   const uploadRoute = await getGPSUploadRoute(email, date); //S3 업로드 경로
-  const gzipFile = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
-  //response
+  const getFileFromS3Result = await getFileFromS3(uploadRoute); //해당 S3 ROUTE로 파일 다시 GET.
+  // S3 파일 조회 중 에러 발생 처리
+  if (getFileFromS3Result instanceof Error) {
+    return res
+      .status(500)
+      .json({ error: 'S3에서 GPS 조회 중 error 발생', ' error내용': getFileFromS3Result });
+  }
+  // 성공 response
   return res.status(201).json({
     message: '해당 날짜의 GPS gzip 파일 GET 성공.',
-    gzipFile: gzipFile,
+    gzipFile: getFileFromS3Result,
   });
 });
 
