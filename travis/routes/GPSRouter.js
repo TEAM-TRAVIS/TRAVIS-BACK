@@ -1,3 +1,4 @@
+// localhost:3000/gps
 const express = require('express');
 const getSummaryController = require('../controllers/getSummaryController');
 const getGPSController = require('../controllers/getGPSController');

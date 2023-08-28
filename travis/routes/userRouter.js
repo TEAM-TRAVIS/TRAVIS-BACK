@@ -1,3 +1,4 @@
+// localhost:3000/user
 const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
