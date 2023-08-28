@@ -13,12 +13,19 @@ exports.saveImage = catchAsync(async (req, res, next) => {
     Key: `${email}/profile`, // user1@gmail.com/profile
   };
   //S3에 file 업로드
-  await uploadToS3(uploadRoute, image, true); //업로드 후 업로드 경로를 변수에 저장.
+  const uploadToS3Result = await uploadToS3(uploadRoute, image, true); //업로드 후 업로드 경로를 변수에 저장.
 
-  //response
+  // S3 업로드 중 에러 발생 처리
+  if (uploadToS3Result instanceof Error) {
+    return res
+      .status(500)
+      .json({ error: 'S3에 이미지 저장 중 error 발생', ' error내용': uploadToS3Result });
+  }
+
+  //성공 response
   return res.status(201).json({
     message: 'profile이 s3에 성공적으로 저장됐습니다',
-    image: image,
+    url: uploadRoute.Key,
   });
 });
 
@@ -29,10 +36,16 @@ exports.getImage = catchAsync(async (req, res, next) => {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
     Key: `${email}/profile`, // user1@mgmail.com/profile
   };
-  const imageFile = await getFileFromS3(uploadRoute, true); //해당 S3 ROUTE로 파일 다시 GET.
-  //response
+  const getFileFromS3Result = await getFileFromS3(uploadRoute, true); //해당 S3 ROUTE로 파일 다시 GET.
+  // S3 파일 조회 중 에러 발생 처리
+  if (getFileFromS3Result instanceof Error) {
+    return res
+      .status(500)
+      .json({ error: 'S3에서 이미지 조회 중 error 발생', ' error내용': getFileFromS3Result });
+  }
+  //성공 response
   return res.status(201).json({
     message: '프로필 사진 GET 성공.',
-    image: imageFile,
+    image: getFileFromS3Result,
   });
 });
