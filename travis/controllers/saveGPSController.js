@@ -22,6 +22,7 @@ const saveToMongo = async (record) => {
       GPSDB.to_dist += distNumber;
       GPSDB.to_time += timeNumber;
     }
+
     GPSDB.records.push(record); // 새 레코드 push
 
     await GPSDB.save(); // 저장
@@ -34,38 +35,26 @@ const saveToMongo = async (record) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    // const { email, dist, time, title, content, isPublic, city1, city2, city3, GPSgzip } = req.body;
+    // const { email, dist, time, title, content, isPublic, city1, city2, city3, file } = req.body;
     const record = req.body;
-    const screenshot = req.file.buffer; // 스크린샷 데이터 추출
     record.date = Date.now();
 
-    // S3 GPS 업로드 경로
-    const uploadRouteGPS = {
+    // S3 업로드 경로
+    const uploadRoute = {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: `${record.email}/${record.date}`, // seung@eon.kim/2023080213440503
     };
-    // S3에 GPS 업로드
-    const uploadToS3ResultGPS = await uploadToS3(uploadRouteGPS, record.GPSgzip, false); //업로드 후 업로드 경로를 변수에 저장.
+
+    // S3에 file 업로드
+    const uploadToS3Result = await uploadToS3(uploadRoute, record.file, false); //업로드 후 업로드 경로를 변수에 저장.
     // S3 업로드 중 에러 발생 처리
-    if (uploadToS3ResultGPS instanceof Error) {
+    if (uploadToS3Result instanceof Error) {
       return res
         .status(500)
-        .json({ error: 'S3에 GPS 저장 중 error 발생', ' error내용': uploadToS3ResultGPS });
+        .json({ error: 'S3에 GPS 저장 중 error 발생', ' error내용': uploadToS3Result });
     }
 
-    // S3 지도 screenshot 업로드 경로
-    const uploadRouteSS = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${record.email}/${record.date}_SS`, // seung@eon.kim/2023080213440503_SS
-    };
-    const uploadToS3ResultSS = await uploadToS3(uploadRouteSS, screenshot, true); //업로드 후 업로드 경로를 변수에 저장.
-    // S3 업로드 중 에러 발생 처리
-    if (uploadToS3ResultSS instanceof Error) {
-      return res
-        .status(500)
-        .json({ error: 'S3에 스크린샷 저장 중 error 발생', ' error내용': uploadToS3ResultSS });
-    }
-    record.svRt = uploadToS3ResultGPS;
+    record.svRt = uploadRoute.Key;
 
     // 몽고DB 업로드
     const saveToMongoResult = saveToMongo(record);
@@ -79,8 +68,9 @@ exports.saveGPS = async (req, res) => {
     //response
     return res.status(201).json({
       message: 'GPSController.js의 saveGPS()의 response 입니다.',
-      uploadedURLGPS: uploadToS3ResultGPS,
-      uploadedURLSS: uploadToS3ResultSS,
+      reqHeader: req.headers,
+      reqBody: req.body,
+      uploadedURL: uploadToS3Result,
     });
   } catch (error) {
     res.status(500).json({ error: 'GPSController.js saveGPS의 error 발생', ' error내용': error });

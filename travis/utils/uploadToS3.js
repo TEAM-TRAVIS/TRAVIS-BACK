@@ -14,9 +14,9 @@ const uploadToS3 = async (uploadRoute, file, isImage) => {
     Body: bufferFile,
   };
   try {
-    await s3.upload(uploadParams).promise();
-    console.log('uploadToS3.js S3에 파일 업로드 성공!: ', uploadRoute.Key);
-    return uploadRoute.Key; //miniwa00@gmail.com/1693341665398 또는 miniwa00@gmail.com/1693341665398_SS
+    const data = await s3.upload(uploadParams).promise();
+    console.log('S3에 파일 업로드 성공!: ', data.Location);
+    return data.Location; //저장된 경로 return
   } catch (err) {
     console.error('S3 업로드 중 에러 발생: ', err);
     return err;

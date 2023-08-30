@@ -1,4 +1,3 @@
-// localhost:3000/main
 const express = require('express');
 const passport = require('passport');
 const mainController = require('../controllers/mainController');
