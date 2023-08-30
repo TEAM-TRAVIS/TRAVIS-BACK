@@ -1,4 +1,3 @@
-// localhost:3000/img
 const express = require('express');
 const multer = require('multer'); //이미지 request 처리
 const imgController = require('../controllers/imgController');
