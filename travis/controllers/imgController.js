@@ -9,6 +9,8 @@ bodyParser.urlencoded({ extended: false, limit: '5mb' });
 
 // 프로필 이미지 저장
 exports.saveImage = catchAsync(async (req, res, next) => {
+  console.log('----------------------------request---------------------------');
+  console.log(req);
   const image = req.body.file; // 이미지 데이터 추출 //req.body.file
   const S3UrlKey = req.body.filename; // 필드에서 email/date_SS 또는 email/profile 을 받아와야 함. //req.filename
   console.log('imgController.js의 S3 URL은? ', S3UrlKey);
