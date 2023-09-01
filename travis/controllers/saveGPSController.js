@@ -35,7 +35,7 @@ const saveToMongo = async (record) => {
 
 exports.saveGPS = async (req, res) => {
   try {
-    // const { email, dist, time, title, content, isPublic, city1, city2, city3, file } = req.body;
+    // const { email, dist, time, title, content, isPublic, city1, city2, city3, file, splitnum } = req.body;
     const record = req.body;
     record.date = Date.now();
 

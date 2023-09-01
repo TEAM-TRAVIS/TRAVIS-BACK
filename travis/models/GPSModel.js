@@ -32,6 +32,7 @@ const GPSSchema = new mongoose.Schema({
       city3: String,
       isPublic: { type: Boolean, default: false }, //공개 여부
       svRt: { type: String, required: [true, 'AWS S3 save route is required'] }, //S3에 저장된 경로
+      splitnum: { type: String }, //GPS 파일 split 횟수: 너무커서 (0~500은 1/ 500~1000은 2) else 0
     },
   ],
 });
